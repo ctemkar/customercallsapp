@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="wrap_content"
+        android:id="@+id/tb_back_title"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:background="@drawable/ic_baseline_arrow_back_24"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="Add Customer"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingStart="15dp"
+            android:id="@+id/tv_tbTitle"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+
+</com.google.android.material.appbar.AppBarLayout>
