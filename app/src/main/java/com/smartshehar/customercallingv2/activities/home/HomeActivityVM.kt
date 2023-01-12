@@ -3,7 +3,7 @@ package com.smartshehar.customercallingv2.activities.home
 import android.app.Application
 import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
-import com.smartshehar.customercallingv2.events.EventStatus
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import dagger.hilt.android.lifecycle.HiltViewModel

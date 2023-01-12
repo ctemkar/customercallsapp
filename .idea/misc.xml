@@ -4,10 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/bg_image_with_text.xml" value="0.2625" />
+        <entry key="app/src/main/res/layout/activity_add_customer.xml" value="0.21242224335748372" />
+        <entry key="app/src/main/res/layout/activity_add_customer_order.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_add_menu_item.xml" value="0.3178037379494494" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.21271676928263683" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2552083333333333" />
         <entry key="app/src/main/res/layout/activity_new_customer.xml" value="0.15989583333333332" />
+        <entry key="app/src/main/res/layout/activity_view_customer.xml" value="0.2444547910205974" />
         <entry key="app/src/main/res/layout/activity_view_menu_items.xml" value="0.16259057971014493" />
         <entry key="app/src/main/res/layout/layout_popup.xml" value="0.43970001713634255" />
         <entry key="app/src/main/res/layout/list_customer_home.xml" value="0.25" />

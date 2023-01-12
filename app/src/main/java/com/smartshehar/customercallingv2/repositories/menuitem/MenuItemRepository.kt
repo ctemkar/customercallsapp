@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.amaze.emanage.events.EventData
-import com.smartshehar.customercallingv2.events.EventStatus
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.MenuItem
 
 

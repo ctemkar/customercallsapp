@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import com.smartshehar.customercallingv2.FloatingWindow
 import android.os.Build
 import androidx.work.OneTimeWorkRequest
@@ -14,11 +13,8 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
-import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 class PhoneStateReceiver : BroadcastReceiver() {
     private val TAG = "PhoneStateReceiver"
@@ -65,7 +61,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
     private fun startPopupShowWorker(context: Context, incomingNumber: String) {
         try {
-            val customer = customerRepository.getCustomerDetailsWithNumber(incomingNumber)
+            val customer = customerRepository.getCustomerDetailsByNumber(incomingNumber)
             val serviceIntent = Intent(context, FloatingWindow::class.java)
             serviceIntent.putExtra("name", customer.firstName)
             serviceIntent.putExtra("phone", customer.msPhoneNo)

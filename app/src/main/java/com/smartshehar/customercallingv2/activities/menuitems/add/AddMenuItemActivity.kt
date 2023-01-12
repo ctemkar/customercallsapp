@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.databinding.ActivityAddMenuItemBinding
-import com.smartshehar.customercallingv2.events.EventStatus
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.MenuItem
 import dagger.hilt.android.AndroidEntryPoint
 

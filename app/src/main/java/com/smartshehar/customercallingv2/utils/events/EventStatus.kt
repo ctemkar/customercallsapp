@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.events
+package com.smartshehar.customercallingv2.utils.events
 
 enum class EventStatus {
     LOADING,

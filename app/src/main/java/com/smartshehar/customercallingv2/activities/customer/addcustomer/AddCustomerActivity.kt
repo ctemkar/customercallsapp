@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.addcustomer
+package com.smartshehar.customercallingv2.activities.customer.addcustomer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,7 +6,7 @@ import android.widget.ImageButton
 import androidx.activity.viewModels
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.databinding.ActivityAddCustomerBinding
-import com.smartshehar.customercallingv2.events.EventStatus
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
 import dagger.hilt.android.AndroidEntryPoint
 

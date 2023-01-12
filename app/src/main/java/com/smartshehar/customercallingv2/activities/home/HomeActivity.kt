@@ -17,14 +17,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
-import com.smartshehar.customercallingv2.events.EventStatus
-import com.smartshehar.customercallingv2.activities.addcustomer.AddCustomerActivity
+import com.smartshehar.customercallingv2.utils.events.EventStatus
+import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
+import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
+import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
-import android.content.IntentFilter
-import com.smartshehar.customercallingv2.receivers.PhoneStateReceiver
 
 
 @AndroidEntryPoint
@@ -52,21 +54,6 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-//    lateinit var mReceiver: PhoneStateReceiver
-//    override fun onResume() {
-//        super.onResume()
-//        val intentFilter = IntentFilter()
-//        intentFilter.addAction("android.intent.action.PHONE_STATE")
-//
-//        mReceiver = PhoneStateReceiver()
-//        registerReceiver(mReceiver, intentFilter)
-//    }
-//
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        unregisterReceiver(mReceiver)
-//    }
-
     private fun loadData() {
         viewModel.getCustomersLiveData().observe(this) {
             when (it.eventStatus) {
@@ -75,16 +62,35 @@ class HomeActivity : AppCompatActivity() {
                 }
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
-
-                    val mAdapter = CustomerListHomeAdapter(it.data!!)
-                    Log.d(TAG, "loadData: ${it.data!!.size}")
-                    binding.rViewCustomersHome.apply {
-                        layoutManager = LinearLayoutManager(applicationContext)
-                        adapter = mAdapter
-                    }
+                    showCustomerDataList(it)
                 }
                 EventStatus.ERROR -> TODO()
             }
+        }
+    }
+
+    private fun showCustomerDataList(it: EventData<List<Customer>>?) {
+        if (it != null) {
+            val mAdapter = CustomerListHomeAdapter(it.data!!)
+
+            //Set recycler list items of customers data
+            binding.rViewCustomersHome.apply {
+                layoutManager = LinearLayoutManager(applicationContext)
+                adapter = mAdapter
+            }
+
+
+            //Set listener on list item to launch into new activity
+            mAdapter.setOnClickListener(object :
+                CustomerListHomeAdapter.OnItemClickListener {
+                override fun onItemClick(position: Int) {
+                    val intent =
+                        Intent(applicationContext, ViewCustomerActivity::class.java)
+                    intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, it.data!![position].customerId.toLong())
+                    Log.d(TAG, "onItemClick: ${it.data!![position].customerId}")
+                    startActivity(intent)
+                }
+            })
         }
     }
 

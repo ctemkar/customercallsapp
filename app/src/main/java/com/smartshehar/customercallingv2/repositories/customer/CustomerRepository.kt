@@ -7,13 +7,17 @@ class CustomerRepository(val customerDao: CustomerDao) {
     private val TAG = "CustomerRepository"
 
 
-    fun getCustomerDetailsWithNumber(unformattedContactNumber: String): Customer {
+    fun getCustomerDetailsByNumber(unformattedContactNumber: String): Customer {
         var contactNumber = unformattedContactNumber
         if (contactNumber.startsWith("+91")) {
             contactNumber = unformattedContactNumber.substring(3)
         }
 
         Log.d(TAG, "getCustomerDetailsWithNumber: $contactNumber")
-        return customerDao.getCustomerWithPhoneNumber(contactNumber)
+        return customerDao.getCustomerByPhoneNumber(contactNumber)
+    }
+
+    fun getCustomerDetailsById(customerId: Long): Customer {
+        return customerDao.getCustomerById(customerId)
     }
 }

@@ -11,15 +11,18 @@ import com.smartshehar.customercallingv2.models.Customer
 interface CustomerDao {
 
     @Insert
-    fun insert(customer : Customer)
+    fun insert(customer: Customer)
 
     @Update
-    fun update(customer : Customer)
+    fun update(customer: Customer)
+
+    @Query("select * from customer where customerId=:customerId")
+    fun getCustomerById(customerId: Long) : Customer
 
     @Query("select * from customer")
     fun getAllCustomers(): LiveData<List<Customer>>
 
     @Query("select * from customer where msPhoneNo=:phoneNumber")
-    fun getCustomerWithPhoneNumber(phoneNumber: String) : Customer
+    fun getCustomerByPhoneNumber(phoneNumber: String): Customer
 
 }

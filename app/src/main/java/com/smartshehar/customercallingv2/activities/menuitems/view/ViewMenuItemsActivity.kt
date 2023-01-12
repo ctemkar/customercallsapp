@@ -12,7 +12,7 @@ import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.MenuItemAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.add.AddMenuItemActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewMenuItemsBinding
-import com.smartshehar.customercallingv2.events.EventStatus
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

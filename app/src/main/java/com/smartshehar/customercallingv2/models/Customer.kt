@@ -21,7 +21,6 @@ class Customer : Serializable{
     @ColumnInfo(name = "first_name")
     var firstName: String? = null
     var getMiCustomerLocalId = 0
-    var miCustomerId: Long = 0
     var miCustomerCallId = 0
     var msFirstName = ""
     var msLastName = ""
