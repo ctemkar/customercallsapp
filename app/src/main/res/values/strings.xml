@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CustomerCallingV2</string>
     <string name="addcustomer">Add Customer</string>
+    <string name="menu_items">Menu Items</string>
 </resources>

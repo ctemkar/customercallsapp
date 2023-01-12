@@ -2,7 +2,8 @@ package com.smartshehar.customercallingv2.di
 
 import android.app.Application
 import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
-import com.smartshehar.customercallingv2.repositories.sqlite.dao.CustomerDao
+import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
+import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,4 +18,8 @@ object DBModule {
         return AppLocalDatabase.getInstance(application).customerDao()
     }
 
+    @Provides
+    fun getMenuItemDao(application: Application) : MenuItemDao {
+        return AppLocalDatabase.getInstance(application).menuItemDao()
+    }
 }

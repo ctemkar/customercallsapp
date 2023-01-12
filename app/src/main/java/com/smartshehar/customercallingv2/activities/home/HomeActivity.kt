@@ -17,16 +17,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.smartshehar.customercallingv2.activities.home.adapters.CustomerListHomeAdapter
+import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
+import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
 import com.smartshehar.customercallingv2.events.EventStatus
-import com.smartshehar.customercallingv2.activities.newcustomer.NewCustomerActivity
+import com.smartshehar.customercallingv2.activities.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
+import android.content.IntentFilter
+import com.smartshehar.customercallingv2.receivers.PhoneStateReceiver
+
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
 
-    private  val TAG = "HomeActivity"
+    private val TAG = "HomeActivity"
     private lateinit var binding: ActivityHomeBinding
     private val viewModel: HomeActivityVM by viewModels()
 
@@ -38,10 +42,30 @@ class HomeActivity : AppCompatActivity() {
         loadData()
 
         binding.fabNewCustomer.setOnClickListener {
-            startActivity(Intent(this, NewCustomerActivity::class.java))
+            startActivity(Intent(this, AddCustomerActivity::class.java))
         }
 
+        binding.rlMenuHome.setOnClickListener {
+            startActivity(Intent(this, ViewMenuItemsActivity::class.java))
+        }
+
+
     }
+
+//    lateinit var mReceiver: PhoneStateReceiver
+//    override fun onResume() {
+//        super.onResume()
+//        val intentFilter = IntentFilter()
+//        intentFilter.addAction("android.intent.action.PHONE_STATE")
+//
+//        mReceiver = PhoneStateReceiver()
+//        registerReceiver(mReceiver, intentFilter)
+//    }
+//
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        unregisterReceiver(mReceiver)
+//    }
 
     private fun loadData() {
         viewModel.getCustomersLiveData().observe(this) {

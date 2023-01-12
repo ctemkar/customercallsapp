@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
 
     android:layout_height="match_parent"
-    tools:context=".activities.newcustomer.NewCustomerActivity">
+    tools:context=".activities.addcustomer.AddCustomerActivity">
 
     <include layout="@layout/toolbar_back_title"
         android:id="@+id/tb"/>

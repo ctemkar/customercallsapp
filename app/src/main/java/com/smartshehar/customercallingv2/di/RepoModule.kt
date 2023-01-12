@@ -1,9 +1,10 @@
 package com.smartshehar.customercallingv2.di
 
-import android.app.Application
-import com.smartshehar.customercallingv2.repositories.CustomerRepository
-import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
-import com.smartshehar.customercallingv2.repositories.sqlite.dao.CustomerDao
+import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
+import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
+import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemDao
+import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,5 +17,10 @@ object RepoModule {
     @Provides
     fun getCustomerRepo(customerDao: CustomerDao) : CustomerRepository {
         return CustomerRepository(customerDao)
+    }
+
+    @Provides
+    fun getMenuItemRepo(menuItemDao: MenuItemDao) : MenuItemRepository {
+        return MenuItemRepository(menuItemDao)
     }
 }

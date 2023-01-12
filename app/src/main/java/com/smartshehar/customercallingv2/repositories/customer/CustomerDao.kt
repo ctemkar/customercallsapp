@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.repositories.sqlite.dao
+package com.smartshehar.customercallingv2.repositories.customer
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

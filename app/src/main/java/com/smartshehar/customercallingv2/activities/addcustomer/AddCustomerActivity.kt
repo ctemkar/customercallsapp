@@ -1,29 +1,27 @@
-package com.smartshehar.customercallingv2.activities.newcustomer
+package com.smartshehar.customercallingv2.activities.addcustomer
 
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.widget.ImageButton
 import androidx.activity.viewModels
-import com.smartshehar.customercallingv2.databinding.ActivityNewCustomerBinding
+import com.smartshehar.customercallingv2.R
+import com.smartshehar.customercallingv2.databinding.ActivityAddCustomerBinding
 import com.smartshehar.customercallingv2.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
-import com.smartshehar.customercallingv2.repositories.sqlite.dao.CustomerDao
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class NewCustomerActivity : AppCompatActivity() {
+class AddCustomerActivity : AppCompatActivity() {
 
     private val TAG = "NewCustomerActivity"
-    private lateinit var binding : ActivityNewCustomerBinding
-    val viewModel : NewCustomerVM by viewModels()
+    private lateinit var binding : ActivityAddCustomerBinding
+    val viewModel : AddCustomerVM by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityNewCustomerBinding.inflate(layoutInflater)
+        binding = ActivityAddCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.etNewCustomerName.requestFocus()
 
@@ -43,6 +41,10 @@ class NewCustomerActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        findViewById<ImageButton>(R.id.bt_backToolbar).setOnClickListener {
+            finish()
         }
 
     }

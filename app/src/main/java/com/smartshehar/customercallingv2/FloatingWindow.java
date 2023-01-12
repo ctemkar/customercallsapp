@@ -4,35 +4,27 @@ import static android.content.Context.WINDOW_SERVICE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.smartshehar.customercallingv2.models.Customer;
-import com.smartshehar.customercallingv2.repositories.CustomerRepository;
-
-import javax.inject.Inject;
+import com.smartshehar.customercallingv2.receivers.PhoneStateReceiver;
 
 public class FloatingWindow extends Worker {
 
@@ -54,6 +46,7 @@ public class FloatingWindow extends Worker {
         btnStop = ll.findViewById(R.id.btClosePopup);
         ctx = appContext;
     }
+
 
 
     Context ctx;
@@ -86,6 +79,8 @@ public class FloatingWindow extends Worker {
         btnStop.setOnClickListener(v -> wm.removeView(ll));
         return Result.success();
     }
+
+
 
     private void setCustomerData(@NonNull Data data) {
         if (data.getString("name") != null) {

@@ -13,21 +13,27 @@ import android.telephony.PhoneStateListener
 
 import android.telephony.TelephonyManager
 import androidx.work.Data
-import com.smartshehar.customercallingv2.repositories.CustomerRepository
+import androidx.work.ExistingWorkPolicy
+import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
+import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class PhoneStateReceiver : BroadcastReceiver() {
     private val TAG = "PhoneStateReceiver"
+    var isTriggered: Boolean = false
 
-
-    @Inject
     lateinit var customerRepository: CustomerRepository
 
     override fun onReceive(context: Context, intent: Intent) {
-        Toast.makeText(context, "Received", Toast.LENGTH_SHORT).show();
+        val db = AppLocalDatabase.getInstance(context)
+        customerRepository = CustomerRepository(db.customerDao())
+
         try {
+            if (isTriggered) {
+                return
+            }
             val telephonyManager =
                 context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
             val listener = object : PhoneStateListener() {
@@ -37,17 +43,18 @@ class PhoneStateReceiver : BroadcastReceiver() {
                         TelephonyManager.CALL_STATE_IDLE -> stateString = "Idle"
                         TelephonyManager.CALL_STATE_OFFHOOK -> stateString = "Off Hook"
                         TelephonyManager.CALL_STATE_RINGING -> {
+                            isTriggered = true
                             val incomingNumber2 =
                                 intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                             if (incomingNumber2 != null) {
-                                startPopupShowWorker(context, incomingNumber)
+                                Log.d(TAG, "onReceive: ${customerRepository}")
+                                Log.d(TAG, "onCallStateChanged: Launched worker")
+                                startPopupShowWorker(context, incomingNumber2)
                             }
                             stateString = "Ringing"
                         }
+
                     }
-
-
-                    Log.d(TAG, "onCallStateChanged: $stateString ")
                 }
             }
             telephonyManager!!.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
@@ -61,7 +68,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
             val customer = customerRepository.getCustomerDetailsWithNumber(incomingNumber)
             val serviceIntent = Intent(context, FloatingWindow::class.java)
             serviceIntent.putExtra("name", customer.firstName)
-            serviceIntent.putExtra("phone",customer.msPhoneNo)
+            serviceIntent.putExtra("phone", customer.msPhoneNo)
 
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -72,7 +79,9 @@ class PhoneStateReceiver : BroadcastReceiver() {
                         OneTimeWorkRequest.Builder(FloatingWindow::class.java)
                             .setInputData(data.build())
                             .addTag("BACKUP_WORKER_TAG").build()
-                    WorkManager.getInstance(context).enqueue(request)
+                    //WorkManager.getInstance(context).enqueue(request)
+                    WorkManager.getInstance(context).beginUniqueWork("BACK_WORK",ExistingWorkPolicy.REPLACE,request).enqueue()
+                    //WorkManager.getInstance(context).cancelAllWorkByTag("BACKUP_WORKER_TAG")
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
                     context.startForegroundService(serviceIntent)
@@ -81,7 +90,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
                     context.startService(serviceIntent)
                 }
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
 
         }
     }

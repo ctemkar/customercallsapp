@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.newcustomer
+package com.smartshehar.customercallingv2.activities.addcustomer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -6,12 +6,12 @@ import com.amaze.emanage.events.EventData
 import com.amaze.emanage.events.SingleLiveEvent
 import com.smartshehar.customercallingv2.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
-import com.smartshehar.customercallingv2.repositories.sqlite.dao.CustomerDao
+import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class NewCustomerVM @Inject constructor(
+class AddCustomerVM @Inject constructor(
     application: Application,
     private val customerDao: CustomerDao
 ) : AndroidViewModel(application) {

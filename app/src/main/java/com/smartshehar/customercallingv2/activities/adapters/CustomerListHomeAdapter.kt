@@ -1,7 +1,6 @@
-package com.smartshehar.customercallingv2.activities.home.adapters
+package com.smartshehar.customercallingv2.activities.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartshehar.customercallingv2.databinding.ListCustomerHomeBinding

@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
-import com.smartshehar.customercallingv2.repositories.sqlite.dao.CustomerDao
+import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
