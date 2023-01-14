@@ -15,8 +15,59 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rView_createOrderItems"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll"
         android:layout_below="@id/tb" />
+
+
+    <LinearLayout
+        android:id="@+id/ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_cart_checkout"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total: (0 items)"
+                android:id="@+id/tv_totalItemsCart"
+                android:textColor="?android:textColorSecondaryInverse"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_totalAmountCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\u20B9 0"
+                android:textColor="?android:textColorPrimaryInverse"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="Place Order"
+            android:textSize="17sp" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>

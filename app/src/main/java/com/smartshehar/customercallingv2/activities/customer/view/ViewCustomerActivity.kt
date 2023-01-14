@@ -4,8 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.customer.order.add.AddCustomerOrderActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
 import com.smartshehar.customercallingv2.utils.Constants
@@ -24,7 +27,7 @@ class ViewCustomerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityViewCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        setToolbar()
         val customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
         //Check an ID has been received from calling intent
         Log.d(TAG, "onCreate: $customerId")
@@ -57,5 +60,12 @@ class ViewCustomerActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun setToolbar() {
+        findViewById<TextView>(R.id.tv_tbTitle).text = "Customer Profile"
+        findViewById<ImageButton>(R.id.bt_backToolbar).setOnClickListener {
+            finish()
+        }
     }
 }

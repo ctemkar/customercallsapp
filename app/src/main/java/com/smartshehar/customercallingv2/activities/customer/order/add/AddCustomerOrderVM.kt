@@ -9,6 +9,7 @@ import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.repositories.customerorder.CustomerOrderRepository
+import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddCustomerOrderVM @Inject constructor(
     private val customerOrderRepository: CustomerOrderRepository,
+    private val menuItemRepository: MenuItemRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -30,5 +32,8 @@ class AddCustomerOrderVM @Inject constructor(
         }
         return addCustomerOrderLiveData
     }
+
+
+
 
 }
