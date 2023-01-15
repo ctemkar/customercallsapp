@@ -8,7 +8,9 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.smartshehar.customercallingv2.R
+import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
 import com.smartshehar.customercallingv2.activities.customer.order.add.AddCustomerOrderActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
 import com.smartshehar.customercallingv2.utils.Constants
@@ -21,6 +23,7 @@ class ViewCustomerActivity : AppCompatActivity() {
     private val TAG = "ViewCustomerActivity"
     lateinit var binding: ActivityViewCustomerBinding
     val viewModel: ViewCustomerVM by viewModels()
+    var customerId: Long = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +31,7 @@ class ViewCustomerActivity : AppCompatActivity() {
         binding = ActivityViewCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setToolbar()
-        val customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
+        customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
         //Check an ID has been received from calling intent
         Log.d(TAG, "onCreate: $customerId")
         if (customerId == 0L) {
@@ -37,6 +40,26 @@ class ViewCustomerActivity : AppCompatActivity() {
                 .show()
             finish()
         }
+
+
+
+
+        binding.btNewCustomerOrder.setOnClickListener {
+            val intent = Intent(this, AddCustomerOrderActivity::class.java)
+            intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, customerId)
+            startActivity(intent)
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (customerId != 0L) {
+            loadDataFromVM(customerId)
+        }
+    }
+
+    private fun loadDataFromVM(customerId: Long) {
         viewModel.getCustomerData(customerId).observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()
@@ -54,12 +77,20 @@ class ViewCustomerActivity : AppCompatActivity() {
             }
         }
 
-        //
-        binding.btNewCustomerOrder.setOnClickListener {
-            startActivity(Intent(this, AddCustomerOrderActivity::class.java))
+        viewModel.getCustomerOrders(customerId).observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    val mAdapter = OrderHistoryAdapter(it.data!!)
+                    binding.rViewRecentOrdersCustomer.apply {
+                        layoutManager = LinearLayoutManager(applicationContext)
+                        adapter = mAdapter
+                    }
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+            }
         }
-
-
     }
 
     private fun setToolbar() {

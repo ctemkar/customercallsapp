@@ -2,17 +2,18 @@ package com.smartshehar.customercallingv2.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import lombok.*
 import java.io.Serializable
 import java.util.*
 
-@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Entity
 class Customer : Serializable{
 
     @PrimaryKey(autoGenerate = true)
@@ -27,6 +28,7 @@ class Customer : Serializable{
     var msCompany = ""
     var msCountryCode = ""
     var msNationalNumber = ""
+
     var msPhoneNo = ""
     var msFlatNo = ""
     var msWing = ""

@@ -13,6 +13,7 @@ import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepositor
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,8 +23,10 @@ class AddCustomerOrderVM @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val addCustomerOrderLiveData=  MutableLiveData<EventData<CustomerOrder>>()
-    fun addCustomerOrder(customerOrder:CustomerOrder) : LiveData<EventData<CustomerOrder>>{
+    private val addCustomerOrderLiveData = MutableLiveData<EventData<CustomerOrder>>()
+    fun addCustomerOrder(customerOrder: CustomerOrder): LiveData<EventData<CustomerOrder>> {
+        customerOrder.orderId = UUID.randomUUID().toString()
+        customerOrder.orderDate = System.currentTimeMillis()
         viewModelScope.launch {
             val eventData = EventData<CustomerOrder>()
             eventData.eventStatus = EventStatus.SUCCESS
@@ -32,8 +35,6 @@ class AddCustomerOrderVM @Inject constructor(
         }
         return addCustomerOrderLiveData
     }
-
-
 
 
 }

@@ -11,12 +11,20 @@
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.21271676928263683" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2552083333333333" />
         <entry key="app/src/main/res/layout/activity_new_customer.xml" value="0.15989583333333332" />
-        <entry key="app/src/main/res/layout/activity_view_customer.xml" value="0.14552605607138241" />
+        <entry key="app/src/main/res/layout/activity_view_customer.xml" value="0.24971125643558967" />
         <entry key="app/src/main/res/layout/activity_view_menu_items.xml" value="0.16259057971014493" />
+        <entry key="app/src/main/res/layout/activity_view_order_details.xml" value="0.15104166666666666" />
+        <entry key="app/src/main/res/layout/activity_view_orders.xml" value="0.16510416666666666" />
         <entry key="app/src/main/res/layout/layout_popup.xml" value="0.43970001713634255" />
+        <entry key="app/src/main/res/layout/list_cart_item.xml" value="0.12135416666666667" />
         <entry key="app/src/main/res/layout/list_customer_home.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/list_customer_orders.xml" value="0.6730993606048302" />
+        <entry key="app/src/main/res/layout/list_customer_orders_history.xml" value="0.16510416666666666" />
         <entry key="app/src/main/res/layout/list_menu_item.xml" value="0.336665130904592" />
         <entry key="app/src/main/res/layout/list_menu_item_order_place.xml" value="0.2733678056815962" />
+        <entry key="app/src/main/res/layout/list_order_history_item_single_customer.xml" value="0.12135416666666667" />
+        <entry key="app/src/main/res/layout/list_order_history_single_customer.xml" value="0.29451529524285" />
+        <entry key="app/src/main/res/layout/list_orders_history_item.xml" value="0.335" />
         <entry key="app/src/main/res/layout/toolbar_back_title.xml" value="0.33" />
       </map>
     </option>
@@ -30,7 +38,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.6189586586161805" />
+        <option name="scale" value="0.6730993606048302" />
       </ProjectState>
     </option>
   </component>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="7dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="7dp"
+    app:cardElevation="6dp"
+    app:layout_goneMarginEnd="7dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:src="@drawable/dish" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_orderItemNameHistoryList"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="Menu Item " />
+
+
+            <TextView
+                android:id="@+id/tv_orderItemPriceHistoryList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:paddingStart="4dp"
+                android:text="@string/Rs" />
+
+            <TextView
+                android:id="@+id/tv_orderItemTotalOrdersHistoryList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingBottom="4dp"
+                android:text="Ordered 10 Times" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_qtyHistoryItem"
+            android:layout_width="wrap_content"
+            android:text="Qty.10"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
