@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 
 @Dao
 interface CustomerDao {
@@ -24,5 +25,7 @@ interface CustomerDao {
 
     @Query("select * from customer where msPhoneNo=:phoneNumber")
     fun getCustomerByPhoneNumber(phoneNumber: String): Customer
+
+
 
 }

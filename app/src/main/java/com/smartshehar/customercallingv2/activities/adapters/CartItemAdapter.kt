@@ -5,11 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartshehar.customercallingv2.databinding.ListCartItemBinding
 import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.models.OrderItem
 
-class CartItemAdapter(val menuItems: ArrayList<MenuItem>) :
-    RecyclerView.Adapter<CartItemAdapter.ViewHolder>() {
+class CartItemAdapter(
+    val menuItems: ArrayList<MenuItem>,
+    val orderItem: ArrayList<OrderItem>
+) : RecyclerView.Adapter<CartItemAdapter.ViewHolder>() {
 
-    val cartItemsMap = HashMap<Long, Int>()
+    private val cartItems = ArrayList<OrderItem>()
 
     class ViewHolder(val binding: ListCartItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -27,53 +30,43 @@ class CartItemAdapter(val menuItems: ArrayList<MenuItem>) :
                 tvOrderItemPriceCartList.text = "\u20B9 ${price}"
 
                 cardReduceQuantityCart.setOnClickListener {
-                    tvOrderItemQuantityCart.text = reduceQuantityOne(position).toString()
-                    if (listener != null) {
-                        this@CartItemAdapter.listener!!.onQuantityChange(cartItemsMap)
-                    }
+                    val updatedQuantity = reduceQuantityOne(position)
+                    tvOrderItemQuantityCart.text = updatedQuantity.toString()
+                    notifyClickListener(position, updatedQuantity)
                 }
                 cardAddQuantityCart.setOnClickListener {
-                    tvOrderItemQuantityCart.text = addQuantityOne(position).toString()
-                    if (listener != null) {
-                        this@CartItemAdapter.listener!!.onQuantityChange(cartItemsMap)
-                    }
+                    val updatedQuantity = addQuantityOne(position)
+                    tvOrderItemQuantityCart.text = updatedQuantity.toString()
+                    notifyClickListener(position, updatedQuantity)
                 }
 
             }
         }
     }
 
-    private fun addQuantityOne(position: Int): Int {
-        val key = menuItems[position].itemId
-        if (!cartItemsMap.containsKey(key)) {
-            //No quantities were present before, so initializing with 1
-            cartItemsMap[key] = 1
-            return 1
+    private fun notifyClickListener(position: Int, updatedQuantity: Int) {
+        if (listener != null) {
+            this.listener!!.onQuantityChange(position, updatedQuantity)
         }
-        val quantity = cartItemsMap[key]!!
-        cartItemsMap[key] = quantity + 1
-        return cartItemsMap[key]!!
+    }
+
+    private fun addQuantityOne(position: Int): Int {
+        orderItem[position].quantity += 1
+        return orderItem[position].quantity
     }
 
     private fun reduceQuantityOne(position: Int): Int {
-        val key = menuItems[position].itemId
-        if (!cartItemsMap.containsKey(key)) {
-            //No quantities were present before, so doing nothing
+        if (orderItem[position].quantity == 0) {
             return 0
         }
-        val quantity: Int = cartItemsMap[key]!!
-        if (quantity == 0) {
-            cartItemsMap.remove(key)
-            return 0
-        }
-        cartItemsMap[key] = quantity - 1
-        return cartItemsMap[key]!!
+        orderItem[position].quantity -= 1
+        return orderItem[position].quantity
     }
 
     var listener: OnItemQuantityChangeListener? = null
 
     interface OnItemQuantityChangeListener {
-        fun onQuantityChange(map: HashMap<Long, Int>)
+        fun onQuantityChange(position: Int, updatedQuantity: Int)
     }
 
     fun setOnItemQuantityChangeListener(listener: OnItemQuantityChangeListener) {

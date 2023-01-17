@@ -11,6 +11,7 @@ import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customerorder.CustomerOrderRepository
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,11 +33,12 @@ class ViewCustomerVM @Inject constructor(
         return customerLiveData
     }
 
-    private val customerOrdersLiveData = MutableLiveData<EventData<List<CustomerOrder>>>()
+    private val customerOrdersLiveData =
+        MutableLiveData<EventData<CustomerWithCustomerOrder>>()
 
-    fun getCustomerOrders(customerId: Long): LiveData<EventData<List<CustomerOrder>>> {
+    fun getCustomerOrders(customerId: Long): LiveData<EventData<CustomerWithCustomerOrder>> {
         viewModelScope.launch {
-            val eventData = EventData<List<CustomerOrder>>()
+            val eventData = EventData<CustomerWithCustomerOrder>()
             eventData.eventStatus = EventStatus.SUCCESS
             eventData.data = customerOrderRepository.getCustomerOrders(customerId)
             customerOrdersLiveData.value = eventData

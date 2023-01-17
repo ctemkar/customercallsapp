@@ -3,8 +3,6 @@ package com.smartshehar.customercallingv2.repositories.customerorder
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.amaze.emanage.events.EventData
 import com.google.gson.Gson
 import com.smartshehar.customercallingv2.models.CustomerOrder
@@ -13,12 +11,18 @@ import com.smartshehar.customercallingv2.utils.Constants.Companion.PREF_ORDERS_S
 import javax.inject.Inject
 
 import com.google.gson.reflect.TypeToken
+import com.smartshehar.customercallingv2.models.OrderItem
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import java.lang.reflect.Type
 import java.util.*
+import kotlin.collections.ArrayList
 
 
-class CustomerOrderRepository @Inject constructor(val application: Application) {
+class CustomerOrderRepository @Inject constructor(
+    val application: Application,
+    val customerOrderDao: CustomerOrderDao,
+) {
 
     private val TAG = "CustomerOrderRepository"
     suspend fun saveCustomerOrder(customerOrder: CustomerOrder): CustomerOrder {
@@ -42,26 +46,61 @@ class CustomerOrderRepository @Inject constructor(val application: Application) 
         return CustomerOrder()
     }
 
-    suspend fun getCustomerOrders(customerId: Long): LinkedList<CustomerOrder> {
-        val prefs = application.getSharedPreferences(PREF_ORDERS_STORE, MODE_PRIVATE)
-        var savedList = LinkedList<CustomerOrder>()
-        val gson = Gson()
-        val prefKey =
-            PREF_KEY_CUSTOMER_ORDERS + customerId //Making the key unique for all customers
 
-        Log.d(TAG, "getCustomerOrders: $prefKey")
-        //If orders are already present, then load the list into savedList variable
-        if (prefs.contains(prefKey)) {
-            val json = prefs.getString(prefKey, "")
-            if (!json.isNullOrBlank()) {
-                savedList = gson.fromJson(json, getCustomerOrderListType())
-            }
-        } else {
-            Log.d(TAG, "getCustomerOrders: Not con")
+    suspend fun saveCustomerOrderV2(
+        customerOrder: CustomerOrder,
+        orderItems: List<OrderItem>
+    ): CustomerOrder {
+        val id = customerOrderDao.insert(customerOrder)
+        orderItems.forEach {
+            it.parentOrderId = id
+            Log.d(TAG, "saveCustomerOrderV2: ${id}")
         }
-        return savedList
+        val orderItems1 = customerOrderDao.insertOrderItems(orderItems)
+        for (orderItem in orderItems1) {
+            Log.d(TAG, "saveCustomerOrderV2: Inserted ID ${orderItem}")
+        }
+        return customerOrder
     }
 
+    suspend fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder {
+        return customerOrderDao.getCustomerOrders(customerId)
+    }
+
+//    suspend fun getCustomerOrders(customerId: Long): LinkedList<CustomerOrder> {
+//        val prefs = application.getSharedPreferences(PREF_ORDERS_STORE, MODE_PRIVATE)
+//        var savedList = LinkedList<CustomerOrder>()
+//        val gson = Gson()
+//        val prefKey =
+//            PREF_KEY_CUSTOMER_ORDERS + customerId //Making the key unique for all customers
+//
+//        Log.d(TAG, "getCustomerOrders: $prefKey")
+//        //If orders are already present, then load the list into savedList variable
+//        if (prefs.contains(prefKey)) {
+//            val json = prefs.getString(prefKey, "")
+//            if (!json.isNullOrBlank()) {
+//                savedList = gson.fromJson(json, getCustomerOrderListType())
+//            }
+//        } else {
+//            Log.d(TAG, "getCustomerOrders: Not con")
+//        }
+//        return savedList
+//    }
+
+    suspend fun getOrderDetailsV2(parentOrderId: Long): List<OrderItem>? {
+        val result = customerOrderDao.getOrderItems(parentOrderId)
+        if (result.isEmpty()) {
+            Log.d(TAG, "getOrderDetailsV2: Null value $parentOrderId")
+            return ArrayList()
+        }
+        result.forEach {
+            Log.d(
+                TAG,
+                "getOrderDetailsV2: ${it.orderItemId} Parent ID : ${it.parentOrderId} ${it.itemName} ${it.quantity}"
+            )
+        }
+        return result
+    }
 
     suspend fun getOrderDetails(
         orderId: String,
@@ -89,10 +128,12 @@ class CustomerOrderRepository @Inject constructor(val application: Application) 
         if (!json.isNullOrBlank()) {
             val savedList: LinkedList<CustomerOrder> =
                 gson.fromJson(json, getCustomerOrderListType())
+            Log.d(TAG, "getOrderDetails: $json")
+            Log.d(TAG, "getOrderDetails: list size ${savedList.size}")
             val customerOrder = getCustomerOrderFromList(savedList, orderId)
-            if (Objects.isNull(customerOrder)) {
+            if (null != customerOrder) {
                 eventData.data = customerOrder
-                Log.d(TAG, "getOrderDetails: found")
+                Log.d(TAG, "getOrderDetails: found ${eventData.data}")
                 eventData.eventStatus = EventStatus.SUCCESS
             } else {
                 Log.d(TAG, "getOrderDetails: Not found")
@@ -116,16 +157,14 @@ class CustomerOrderRepository @Inject constructor(val application: Application) 
         savedList: LinkedList<CustomerOrder>,
         orderId: String
     ): CustomerOrder? {
-        var customerOrder = CustomerOrder()
-        customerOrder.orderId = orderId
-        //order id is only enough to compare as equals method has been overridden in CustomerOrder class
-        if (!savedList.contains(customerOrder)) {
-            return null
+
+        savedList.forEach {
+//            if(it.orderId == orderId){
+//                return it
+//            }
         }
 
-        val index = savedList.indexOf(customerOrder)
-        customerOrder = savedList[index]
-        return customerOrder
+        return null
     }
 
     //Helper functions

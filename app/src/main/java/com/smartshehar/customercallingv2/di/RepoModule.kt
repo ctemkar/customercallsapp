@@ -23,4 +23,5 @@ object RepoModule {
     fun getMenuItemRepo(menuItemDao: MenuItemDao) : MenuItemRepository {
         return MenuItemRepository(menuItemDao)
     }
+
 }

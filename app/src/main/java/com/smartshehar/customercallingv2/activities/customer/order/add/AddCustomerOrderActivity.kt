@@ -9,15 +9,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.CartItemAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemVM
 import com.smartshehar.customercallingv2.databinding.ActivityAddCustomerOrderBinding
-import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.models.OrderItem
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithOrderItem
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.log
 
 @AndroidEntryPoint
 class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuantityChangeListener {
@@ -25,9 +28,10 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
     private val TAG = "AddCustomerOrderActivit"
     lateinit var binding: ActivityAddCustomerOrderBinding
     val viewModel: AddCustomerOrderVM by viewModels()
-    val viewMenuItemVM: ViewMenuItemVM by viewModels()
+    private val viewMenuItemVM: ViewMenuItemVM by viewModels()
     lateinit var menuItems: ArrayList<MenuItem>
-    val customerOrder = CustomerOrder()
+    lateinit var orderItems: ArrayList<OrderItem>
+    private var customerId: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,19 +44,14 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
             finish()
         }
 
-        customerOrder.customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
+        customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
 
         viewMenuItemVM.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
-                    menuItems = it.data as ArrayList<MenuItem>
-                    val mAdapter = CartItemAdapter(menuItems)
-                    binding.rViewCreateOrderItems.apply {
-                        layoutManager = LinearLayoutManager(applicationContext)
-                        adapter = mAdapter
-                    }
-                    mAdapter.setOnItemQuantityChangeListener(this)
+                    initializeCustomerOrderWithZeroQuantity(it.data!!)
+                    setMenuItemsToCartList(it)
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
@@ -60,25 +59,63 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         }
 
         binding.btPlaceOrder.setOnClickListener {
-            viewModel.addCustomerOrder(customerOrder).observe(this) {
-                when (it.eventStatus) {
-                    EventStatus.LOADING -> {
+            placeCustomerOrder()
+        }
 
-                    }
-                    EventStatus.SUCCESS -> {
-                        Toast.makeText(this, "Placed Order", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                    EventStatus.ERROR -> {
+    }
 
-                    }
-                    EventStatus.EMPTY -> {
+    private fun initializeCustomerOrderWithZeroQuantity(data: List<MenuItem>) {
+        orderItems = ArrayList()
+        data.forEach {
+            val orderItem = OrderItem()
+            orderItem.apply {
+                itemName = it.itemName
+                price = it.price
+                category = it.category
+            }
+            orderItems.add(orderItem)
+        }
+    }
 
-                    }
+    private fun placeCustomerOrder() {
+        if (totalAmount == 0.toDouble()) {
+            Toast.makeText(this, "No Items to order", Toast.LENGTH_SHORT).show()
+            return
+        }
+//        orderItems.forEach {
+//            if (it.quantity == 0) {
+//                orderItems.remove(it)
+//            }
+//            Log.d(TAG, "placeCustomerOrder: ${it.quantity} ${it.itemName}")
+//        }
+
+        viewModel.addCustomerOrder(customerId, orderItems).observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> {
+
+                }
+                EventStatus.SUCCESS -> {
+                    Toast.makeText(this, "Placed Order", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                EventStatus.ERROR -> {
+
+                }
+                EventStatus.EMPTY -> {
+
                 }
             }
         }
+    }
 
+    private fun setMenuItemsToCartList(it: EventData<List<MenuItem>>) {
+        menuItems = it.data as ArrayList<MenuItem>
+        val mAdapter = CartItemAdapter(menuItems, orderItems)
+        binding.rViewCreateOrderItems.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = mAdapter
+        }
+        mAdapter.setOnItemQuantityChangeListener(this)
     }
 
 
@@ -94,18 +131,16 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
     private var totalItems: Int = 0
 
     @SuppressLint("SetTextI18n")
-    override fun onQuantityChange(map: HashMap<Long, Int>) {
+    override fun onQuantityChange(position: Int, updatedQuantity: Int) {
         totalAmount = 0.0
         totalItems = 0
 
-        menuItems.forEach {
-            if (map.contains(it.itemId)) {
-                customerOrder.addOrderItem(it, map[it.itemId]!!)
-                totalItems += 1
-                totalAmount += (it.price * map[it.itemId]!!)
-            }
-        }
-        customerOrder.orderTotal = totalAmount
+        orderItems[position].quantity = updatedQuantity
+        Log.d(
+            TAG,
+            "onQuantityChange: ${orderItems[position].quantity}"
+        )
+        totalAmount += orderItems[position].quantity * orderItems[position].price
         binding.tvTotalItemsCart.text = "Total ($totalItems items)"
         binding.tvTotalAmountCart.text = "${getString(R.string.Rs)}$totalAmount"
     }

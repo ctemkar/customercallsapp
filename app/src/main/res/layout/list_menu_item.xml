@@ -47,6 +47,7 @@
                     android:text="Sd" />
 
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/tv_menuItemTotalOrdersList"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -66,5 +67,7 @@
             android:text="700Rs" />
 
     </LinearLayout>
+
+
 
 </com.google.android.material.card.MaterialCardView>

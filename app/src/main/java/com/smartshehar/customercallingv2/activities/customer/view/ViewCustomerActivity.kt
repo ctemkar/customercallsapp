@@ -12,18 +12,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
 import com.smartshehar.customercallingv2.activities.customer.order.add.AddCustomerOrderActivity
+import com.smartshehar.customercallingv2.activities.customer.order.vieworderdetails.ViewOrderDetailsActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
+import com.smartshehar.customercallingv2.models.CustomerOrder
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
-class ViewCustomerActivity : AppCompatActivity() {
+class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
 
     private val TAG = "ViewCustomerActivity"
     lateinit var binding: ActivityViewCustomerBinding
     val viewModel: ViewCustomerVM by viewModels()
     var customerId: Long = 0
+    private lateinit var customerWithCustomerOrder: CustomerWithCustomerOrder
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,22 +76,27 @@ class ViewCustomerActivity : AppCompatActivity() {
                             tvCustomerViewContact.text = this?.msPhoneNo
                         }
                     }
-
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
             }
         }
 
-        viewModel.getCustomerOrders(customerId).observe(this) {
+        viewModel.getCustomerOrders(customerId).observe(this) { it ->
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
-                    val mAdapter = OrderHistoryAdapter(it.data!!)
+                    customerWithCustomerOrder = it.data!!
+                    customerWithCustomerOrder.customerOrders.forEach { co->
+                        Log.d(TAG, "loadDataFromVM: ${co.customerId}n ${co.orderId}")
+                    }
+                    val mAdapter = OrderHistoryAdapter(customerWithCustomerOrder.customerOrders)
                     binding.rViewRecentOrdersCustomer.apply {
                         layoutManager = LinearLayoutManager(applicationContext)
                         adapter = mAdapter
                     }
+
+                    mAdapter.setOnItemClickListener(this)
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
@@ -98,5 +109,15 @@ class ViewCustomerActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.bt_backToolbar).setOnClickListener {
             finish()
         }
+    }
+
+    override fun onItemClick(position: Int, orderId : Long) {
+        val intent = Intent(this, ViewOrderDetailsActivity::class.java)
+        intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, customerId)
+        intent.putExtra(
+            Constants.INTENT_DATA_ORDER_ID,
+            orderId
+        )
+        startActivity(intent)
     }
 }

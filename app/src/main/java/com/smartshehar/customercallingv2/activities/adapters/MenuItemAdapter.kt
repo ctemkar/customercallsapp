@@ -24,7 +24,7 @@ class MenuItemAdapter constructor(
         with(menuItemList[position]) {
             with(holder.binding) {
                 tvMenuItemNameList.text = itemName
-                tvMenuItemPriceList.text = price.toString()
+                tvMenuItemPriceList.text = "\u20B9${price.toString()}"
                 tvMenuItemCategoryList.text = category
             }
         }
