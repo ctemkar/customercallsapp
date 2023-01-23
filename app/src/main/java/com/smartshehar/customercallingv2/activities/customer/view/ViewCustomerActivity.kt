@@ -74,6 +74,9 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
                         with(it.data) {
                             tvCustomerViewName.text = this?.firstName ?: ""
                             tvCustomerViewContact.text = this?.msPhoneNo
+                            tvCustomerViewStreet.text  = this?.area ?: ""
+                            tvCustomerViewFlatNo.text = this?.houseNo
+
                         }
                     }
                 }

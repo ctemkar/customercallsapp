@@ -25,6 +25,7 @@
             android:exported="false" />
         <activity
             android:name=".activities.menuitems.add.AddMenuItemActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.menuitems.view.ViewMenuItemsActivity"

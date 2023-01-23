@@ -140,7 +140,11 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
             TAG,
             "onQuantityChange: ${orderItems[position].quantity}"
         )
-        totalAmount += orderItems[position].quantity * orderItems[position].price
+
+        orderItems.forEach {
+            totalAmount += it.quantity * it.price
+        }
+
         binding.tvTotalItemsCart.text = "Total ($totalItems items)"
         binding.tvTotalAmountCart.text = "${getString(R.string.Rs)}$totalAmount"
     }

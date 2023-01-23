@@ -30,6 +30,8 @@ class AddCustomerActivity : AppCompatActivity() {
                 val customer = Customer()
                 customer.firstName = binding.etNewCustomerName.text.toString()
                 customer.msPhoneNo = binding.etNewCustomerPhone.text.toString()
+                customer.houseNo = binding.etNewCustomerHouseFlatNo.text.toString()
+                customer.area = binding.etNewCustomerAreaStreet.text.toString()
                 viewModel.createNewCustomer(customer).observe(this){
                     when(it.eventStatus){
                         EventStatus.LOADING -> TODO()
