@@ -29,4 +29,7 @@ interface CustomerOrderDao {
     @Query("select * from orderitem where parentOrderId=:parentOrderId")
     fun getOrderItems(parentOrderId: Long): List<OrderItem>
 
+    @Query("select count (price) from orderitem,customerorder where menuItemId=:itemId and customerId=:customerId and parentOrderId=orderId")
+    fun getOrderItemCountFromOrder(itemId: Long, customerId: Long): Int
+
 }

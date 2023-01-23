@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.models.CustomerOrder
+import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.models.OrderItem
 import com.smartshehar.customercallingv2.repositories.customerorder.CustomerOrderRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithOrderItem
@@ -22,11 +23,23 @@ class ViewOrderDetailsVM @Inject constructor(
 
     private val orderDetailsLiveData = MutableLiveData<EventData<List<OrderItem>>>()
 
-    fun getOrderDetails(orderId: Long): LiveData<EventData<List<OrderItem>>> {
+    fun getOrderDetails(orderId: Long, customerId: Long): LiveData<EventData<List<OrderItem>>> {
         viewModelScope.launch(Dispatchers.IO) {
             val eventData = EventData<List<OrderItem>>()
             eventData.eventStatus = EventStatus.SUCCESS
-            eventData.data = customerOrderRepository.getOrderDetailsV2(orderId)
+
+            var orderItems = customerOrderRepository.getOrderDetailsV2(orderId)
+            if (orderItems != null) {
+                if (!orderItems.isEmpty()) {
+                    orderItems =
+                        customerOrderRepository.getItemOrderedCountByCustomerAndItems(
+                            orderItems,
+                            customerId
+                        )
+                }
+            }
+
+            eventData.data = orderItems
             orderDetailsLiveData.postValue(eventData)
         }
         return orderDetailsLiveData

@@ -27,6 +27,7 @@ class OrderHistoryItemAdapter(
                 tvOrderItemNameHistoryList.text = itemName
                 tvOrderItemPriceHistoryList.text = "\u20B9${price}"
                 tvQtyHistoryItem.text = "Qty.${quantity}"
+                tvOrderItemTotalOrdersHistoryList.text = "Ordered ${totalOrders} times"
             }
         }
     }

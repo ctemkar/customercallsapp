@@ -12,7 +12,6 @@ class CartItemAdapter(
     val orderItem: ArrayList<OrderItem>
 ) : RecyclerView.Adapter<CartItemAdapter.ViewHolder>() {
 
-    private val cartItems = ArrayList<OrderItem>()
 
     class ViewHolder(val binding: ListCartItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -28,7 +27,7 @@ class CartItemAdapter(
             with(menuItems[position]) {
                 tvOrderItemNameCartList.text = itemName
                 tvOrderItemPriceCartList.text = "\u20B9 ${price}"
-
+                tvOrderItemTotalOrdersCartList.text= "Ordered ${orderItem[position].totalOrders} times"
                 cardReduceQuantityCart.setOnClickListener {
                     val updatedQuantity = reduceQuantityOne(position)
                     tvOrderItemQuantityCart.text = updatedQuantity.toString()

@@ -27,6 +27,7 @@ class Customer : Serializable{
     var msNationalNumber = ""
     var msPhoneNo = ""
     var houseNo = ""
+    var totalOrders = 0
     var area : String = ""
     var landmark : String = ""
     var mIsIgnore = false

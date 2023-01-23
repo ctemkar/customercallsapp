@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.smartshehar.customercallingv2.databinding.ListOrdersHistoryBinding
 import com.smartshehar.customercallingv2.models.CustomerOrder
-import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.DateFormatter
 
 class OrderHistoryAdapter(private val ordersList: List<CustomerOrder>) :
@@ -30,7 +29,7 @@ class OrderHistoryAdapter(private val ordersList: List<CustomerOrder>) :
             }
 
             with(ordersList[position]) {
-                tvOrderTotalOrderList.text = orderTotal.toString()
+                tvOrderTotalOrderList.text = orderTotalAmount.toString()
                 tvOrderIdOrderList.text = orderId.toString()
                 tvOrderedOnOrderList.text = DateFormatter.getDateFormatted(orderDate)
             }

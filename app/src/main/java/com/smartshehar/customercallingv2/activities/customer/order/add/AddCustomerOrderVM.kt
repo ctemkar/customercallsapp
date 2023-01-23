@@ -39,7 +39,7 @@ class AddCustomerOrderVM @Inject constructor(
             }
             totalAmount += order.quantity * order.price
         }
-        customerOrder.orderTotal = totalAmount
+        customerOrder.orderTotalAmount = totalAmount
 
         viewModelScope.launch {
             val eventData = EventData<CustomerOrder>()
@@ -49,6 +49,15 @@ class AddCustomerOrderVM @Inject constructor(
         }
         return addCustomerOrderLiveData
     }
+
+    suspend fun getOrderedCounts(orderItems : List<OrderItem>, customerId: Long) : List<OrderItem>{
+        return customerOrderRepository.getItemOrderedCountByCustomerAndItems(
+            orderItems,
+            customerId
+        )
+
+    }
+
 
 
 }

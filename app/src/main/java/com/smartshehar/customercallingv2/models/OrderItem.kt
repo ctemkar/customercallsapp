@@ -32,6 +32,8 @@ class OrderItem {
     var itemName: String = ""
     var price: Double = 0.0
     var category: String = ""
-    var menuItemId: Int = 0
+    var menuItemId: Long = 0
+    var totalOrders = 0
+
 
 }

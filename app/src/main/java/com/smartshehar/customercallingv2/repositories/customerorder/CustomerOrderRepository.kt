@@ -87,6 +87,24 @@ class CustomerOrderRepository @Inject constructor(
 //        return savedList
 //    }
 
+
+    suspend fun getItemOrderedCountByCustomerAndItems(
+        menuItemsId: List<OrderItem>,
+        customerId: Long
+    ): List<OrderItem> {
+        //Items will be assigned total times ordered value
+        menuItemsId.forEach {
+            it.totalOrders =
+                customerOrderDao.getOrderItemCountFromOrder(
+                    it.menuItemId,
+                    customerId
+                )
+            Log.d(TAG, "getItemOrderedCountByCustomerAndItems: ${it.totalOrders}")
+
+        }
+        return menuItemsId
+    }
+
     suspend fun getOrderDetailsV2(parentOrderId: Long): List<OrderItem>? {
         val result = customerOrderDao.getOrderItems(parentOrderId)
         if (result.isEmpty()) {

@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.R
@@ -20,6 +21,7 @@ import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOr
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlin.math.log
 
 @AndroidEntryPoint
@@ -65,16 +67,21 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
     }
 
     private fun initializeCustomerOrderWithZeroQuantity(data: List<MenuItem>) {
-        orderItems = ArrayList()
+        orderItems = java.util.ArrayList()
         data.forEach {
             val orderItem = OrderItem()
             orderItem.apply {
                 itemName = it.itemName
                 price = it.price
                 category = it.category
+                menuItemId = it.itemId
             }
             orderItems.add(orderItem)
         }
+        lifecycleScope.launch{
+            orderItems = viewModel.getOrderedCounts(orderItems,customerId) as ArrayList<OrderItem>
+        }
+        orderItems
     }
 
     private fun placeCustomerOrder() {
@@ -136,11 +143,6 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         totalItems = 0
 
         orderItems[position].quantity = updatedQuantity
-        Log.d(
-            TAG,
-            "onQuantityChange: ${orderItems[position].quantity}"
-        )
-
         orderItems.forEach {
             totalAmount += it.quantity * it.price
         }

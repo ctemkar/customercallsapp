@@ -40,7 +40,7 @@ class ViewOrderDetailsActivity : AppCompatActivity() {
         customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
 
 
-        viewModel.getOrderDetails(orderId).observe(this) {
+        viewModel.getOrderDetails(orderId,customerId).observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {

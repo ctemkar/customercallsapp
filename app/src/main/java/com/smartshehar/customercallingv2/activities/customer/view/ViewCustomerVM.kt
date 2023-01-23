@@ -9,6 +9,7 @@ import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.CustomerOrder
+import com.smartshehar.customercallingv2.models.OrderItem
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customerorder.CustomerOrderRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
@@ -45,6 +46,7 @@ class ViewCustomerVM @Inject constructor(
         }
         return customerOrdersLiveData
     }
+
 
 
 }
