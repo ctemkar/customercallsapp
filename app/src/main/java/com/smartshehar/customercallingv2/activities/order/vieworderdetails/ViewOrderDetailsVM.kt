@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.customer.order.vieworderdetails
+package com.smartshehar.customercallingv2.activities.order.vieworderdetails
 
 import android.app.Application
 import androidx.lifecycle.*
@@ -45,8 +45,13 @@ class ViewOrderDetailsVM @Inject constructor(
         return orderDetailsLiveData
     }
 
-    fun destroyObservers() {
 
+
+
+
+
+    override fun onCleared() {
+        super.onCleared()
     }
 
 

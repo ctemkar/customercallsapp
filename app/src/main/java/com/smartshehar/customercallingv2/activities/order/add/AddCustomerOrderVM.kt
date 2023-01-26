@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.customer.order.add
+package com.smartshehar.customercallingv2.activities.order.add
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

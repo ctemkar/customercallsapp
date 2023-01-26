@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.customer.order.vieworderdetails
+package com.smartshehar.customercallingv2.activities.order.vieworderdetails
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

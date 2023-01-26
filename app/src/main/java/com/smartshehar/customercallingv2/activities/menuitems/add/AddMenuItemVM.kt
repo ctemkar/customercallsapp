@@ -29,4 +29,15 @@ class AddMenuItemVM @Inject constructor(
         return addMenuItemLiveData
     }
 
+
+
+    fun updateMenuItem(menuItem: MenuItem) : SingleLiveEvent<EventData<MenuItem>>{
+        viewModelScope.launch {
+            val result = menuItemRepository.updateMenuItem(menuItem)
+            addMenuItemLiveData.value = result
+        }
+        return addMenuItemLiveData
+    }
+
+
 }

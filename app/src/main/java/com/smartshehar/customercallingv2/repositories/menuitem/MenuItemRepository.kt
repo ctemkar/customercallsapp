@@ -18,6 +18,13 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao) {
         return eventData
     }
 
+    fun updateMenuItem(menuItem: MenuItem) : EventData<MenuItem>{
+        menuItemDao.update(menuItem)
+        val eventData = EventData<MenuItem>()
+        eventData.eventStatus = EventStatus.SUCCESS
+        return eventData
+    }
+
 
     private val menuItemsLiveData = MutableLiveData<EventData<List<MenuItem>>>()
     private val menuItemsLocalObserver = Observer<List<MenuItem>> {

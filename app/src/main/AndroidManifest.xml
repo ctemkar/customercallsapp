@@ -15,10 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CustomerCallingV2">
         <activity
-            android:name=".activities.customer.order.vieworderdetails.ViewOrderDetailsActivity"
+            android:name=".activities.order.vieworderdetails.ViewOrderDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.customer.order.add.AddCustomerOrderActivity"
+            android:name=".activities.order.add.AddCustomerOrderActivity"
             android:exported="false" />
         <activity
             android:name=".activities.customer.view.ViewCustomerActivity"

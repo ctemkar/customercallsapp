@@ -11,8 +11,8 @@ import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
-import com.smartshehar.customercallingv2.activities.customer.order.add.AddCustomerOrderActivity
-import com.smartshehar.customercallingv2.activities.customer.order.vieworderdetails.ViewOrderDetailsActivity
+import com.smartshehar.customercallingv2.activities.order.add.AddCustomerOrderActivity
+import com.smartshehar.customercallingv2.activities.order.vieworderdetails.ViewOrderDetailsActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder

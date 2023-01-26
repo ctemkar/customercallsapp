@@ -15,6 +15,7 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
+import kotlin.math.log
 
 class PhoneStateReceiver : BroadcastReceiver() {
     private val TAG = "PhoneStateReceiver"
@@ -61,22 +62,34 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
     private fun startPopupShowWorker(context: Context, incomingNumber: String) {
         try {
-            val customer = customerRepository.getCustomerDetailsByNumber(incomingNumber)
             val serviceIntent = Intent(context, FloatingWindow::class.java)
-            serviceIntent.putExtra("name", customer.firstName)
-            serviceIntent.putExtra("phone", customer.msPhoneNo)
+
+            val customer = customerRepository.getCustomerDetailsByNumber(incomingNumber)
+            if (customer == null) {
+                serviceIntent.putExtra("isNewCustomer", true);
+            } else {
+                serviceIntent.putExtra("name", customer.firstName)
+                serviceIntent.putExtra("id", customer.customerId)
+                serviceIntent.putExtra("phone", customer.msPhoneNo)
+            }
 
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                     val data = Data.Builder()
-                    data.putString("name", customer.firstName)
-                    data.putString("phone", customer.msPhoneNo)
+                    if (customer == null) {
+                        data.putBoolean("isNewCustomer", true)
+                    } else {
+                        data.putString("name", customer.firstName)
+                        data.putString("phone", customer.msPhoneNo)
+                        data.putInt("id", customer.customerId)
+                    }
                     val request: OneTimeWorkRequest =
                         OneTimeWorkRequest.Builder(FloatingWindow::class.java)
                             .setInputData(data.build())
                             .addTag("BACKUP_WORKER_TAG").build()
                     //WorkManager.getInstance(context).enqueue(request)
-                    WorkManager.getInstance(context).beginUniqueWork("BACK_WORK",ExistingWorkPolicy.REPLACE,request).enqueue()
+                    WorkManager.getInstance(context)
+                        .beginUniqueWork("BACK_WORK", ExistingWorkPolicy.REPLACE, request).enqueue()
                     //WorkManager.getInstance(context).cancelAllWorkByTag("BACKUP_WORKER_TAG")
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
@@ -87,7 +100,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
                 }
             }
         } catch (e: Exception) {
-
+            e.printStackTrace()
         }
     }
 }

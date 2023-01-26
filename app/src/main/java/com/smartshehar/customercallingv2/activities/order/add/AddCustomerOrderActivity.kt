@@ -1,4 +1,4 @@
-package com.smartshehar.customercallingv2.activities.customer.order.add
+package com.smartshehar.customercallingv2.activities.order.add
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
@@ -47,7 +47,7 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         }
 
         customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
-
+        Toast.makeText(this,customerId.toString(),Toast.LENGTH_SHORT).show()
         viewMenuItemVM.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()

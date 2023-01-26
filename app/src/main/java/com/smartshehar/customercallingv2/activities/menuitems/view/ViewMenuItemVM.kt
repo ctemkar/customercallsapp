@@ -32,10 +32,10 @@ class ViewMenuItemVM @Inject constructor(
     }
 
     override fun onCleared() {
+        super.onCleared()
         if (menuItemRepository.getAllMenuItems().hasActiveObservers()) {
             menuItemRepository.getAllMenuItems().removeObserver(menuItemsObserver)
         }
-        super.onCleared()
     }
 
 

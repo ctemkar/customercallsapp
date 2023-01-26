@@ -12,16 +12,18 @@ import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.MenuItemAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.add.AddMenuItemActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewMenuItemsBinding
+import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ViewMenuItemsActivity : AppCompatActivity() {
+class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickListener {
 
     private val TAG = "ViewMenuItemsActivity"
     lateinit var binding: ActivityViewMenuItemsBinding
     val viewModel: ViewMenuItemVM by viewModels()
-
+    private lateinit var menuItems : List<MenuItem>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityViewMenuItemsBinding.inflate(layoutInflater)
@@ -30,14 +32,17 @@ class ViewMenuItemsActivity : AppCompatActivity() {
 
         viewModel.getMenuItems().observe(this) {
             when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
+                EventStatus.LOADING -> {
+
+                }
                 EventStatus.SUCCESS -> {
-                    Log.d(TAG, "onCreate: ${it.data!!.size}")
-                    val mAdapter = MenuItemAdapter(it.data!!)
+                    menuItems = it.data!!
+                    val mAdapter = MenuItemAdapter(menuItems)
                     binding.rViewViewMenuItems.apply {
                         layoutManager = LinearLayoutManager(applicationContext)
                         adapter = mAdapter
                     }
+                    mAdapter.setOnItemClickListener(this)
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
@@ -54,5 +59,14 @@ class ViewMenuItemsActivity : AppCompatActivity() {
         binding.fabAddMenuItemRedirect.setOnClickListener {
             startActivity(Intent(this, AddMenuItemActivity::class.java))
         }
+    }
+
+    override fun onClick(position: Int) {
+        val selectedItem =  menuItems[position]
+
+        val intent = Intent(applicationContext,AddMenuItemActivity::class.java)
+        intent.putExtra(Constants.INTENT_DATA_MENU_ITEM,selectedItem)
+        intent.putExtra(Constants.INTENT_IS_EDIT_MODE,true)
+        startActivity(intent)
     }
 }

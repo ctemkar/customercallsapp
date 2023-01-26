@@ -10,7 +10,7 @@ import lombok.*
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-class MenuItem {
+class MenuItem : java.io.Serializable{
 
     @PrimaryKey(autoGenerate = true)
     var itemId: Long = 0
