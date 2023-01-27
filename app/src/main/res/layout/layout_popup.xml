@@ -120,6 +120,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
+            android:id="@+id/registerCustomerPopup"
             android:text="Register Customer"
             android:textAllCaps="false"
             android:layout_height="wrap_content"/>

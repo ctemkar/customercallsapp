@@ -25,6 +25,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.android.material.card.MaterialCardView;
+import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity;
 import com.smartshehar.customercallingv2.activities.order.add.AddCustomerOrderActivity;
 import com.smartshehar.customercallingv2.utils.Constants;
 
@@ -54,23 +55,29 @@ public class FloatingWindow extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        boolean isExistingCustomer = getInputData().getBoolean("isNewCustomer", false);
+        boolean isNewCustomer = getInputData().getBoolean("isNewCustomer", false);
 
         //Set the view data
         setCustomerData(getInputData());
-        setViewLayout(isExistingCustomer);
-        setClickListeners(isExistingCustomer);
+        setViewLayout(isNewCustomer);
+        setClickListeners(isNewCustomer);
 
         return Result.success();
     }
 
-    private void setClickListeners(boolean isExistingCustomer) {
-        if (isExistingCustomer) {
-            ll.findViewById(R.id.bt_placeNewOrderPopup).setOnClickListener(view -> {
-                startNewOrderActivity();
+    private void setClickListeners(boolean isNewCustomer) {
+        if (isNewCustomer) {
+            ll.findViewById(R.id.registerCustomerPopup).setOnClickListener(view -> {
+                Intent intent = new Intent(getApplicationContext(), AddCustomerActivity.class);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                getApplicationContext().startActivity(intent);
+                wm.removeView(ll);
             });
         } else {
-
+            ll.findViewById(R.id.bt_placeNewOrderPopup).setOnClickListener(view -> {
+                startNewOrderActivity();
+                wm.removeView(ll);
+            });
         }
 
         btnStop.setOnClickListener(v -> wm.removeView(ll));
@@ -87,7 +94,7 @@ public class FloatingWindow extends Worker {
 
 
     @SuppressLint("ClickableViewAccessibility")
-    private void setViewLayout(boolean isExistingCustomer) {
+    private void setViewLayout(boolean isNewCustomer) {
         int LAYOUT_FLAG;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -109,20 +116,19 @@ public class FloatingWindow extends Worker {
 
 
         //Set view according to existing or new customer calling
-        if(isExistingCustomer){
+        if (isNewCustomer) {
+            btnStop = ll.findViewById(R.id.btClosePopupNew);
             ll.findViewById(R.id.ll_existingCustomerLayoutPopup).setVisibility(View.GONE);
             ll.findViewById(R.id.ll_newCustomerLayoutPopup).setVisibility(View.VISIBLE);
-        }else{
+        } else {
             ll.findViewById(R.id.ll_existingCustomerLayoutPopup).setVisibility(View.VISIBLE);
             ll.findViewById(R.id.ll_newCustomerLayoutPopup).setVisibility(View.GONE);
-        }
 
+        }
     }
 
 
     private void setCustomerData(@NonNull Data data) {
-
-
         if (data.getString("name") != null) {
             ((TextView) ll.findViewById(R.id.tv_custNamePopup)).setText(data.getString("name"));
         }
