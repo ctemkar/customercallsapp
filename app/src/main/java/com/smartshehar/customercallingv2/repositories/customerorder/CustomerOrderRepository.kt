@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 import com.google.gson.reflect.TypeToken
 import com.smartshehar.customercallingv2.models.OrderItem
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import java.lang.reflect.Type
@@ -20,11 +21,13 @@ import kotlin.collections.ArrayList
 
 
 class CustomerOrderRepository @Inject constructor(
-    val application: Application,
-    val customerOrderDao: CustomerOrderDao,
+    private val application: Application,
+    private val customerOrderDao: CustomerOrderDao,
 ) {
 
     private val TAG = "CustomerOrderRepository"
+
+    @Deprecated(message = "Replaced shared preference with sqlite")
     suspend fun saveCustomerOrder(customerOrder: CustomerOrder): CustomerOrder {
         val prefs = application.getSharedPreferences(PREF_ORDERS_STORE, MODE_PRIVATE)
         val editor = prefs.edit()
@@ -65,6 +68,10 @@ class CustomerOrderRepository @Inject constructor(
 
     suspend fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder {
         return customerOrderDao.getCustomerOrders(customerId)
+    }
+
+    suspend fun getAllCustomersOrders() : List<CustomerOrderWithCustomer>{
+        return customerOrderDao.getAllCustomerOrders()
     }
 
 //    suspend fun getCustomerOrders(customerId: Long): LinkedList<CustomerOrder> {
@@ -120,6 +127,7 @@ class CustomerOrderRepository @Inject constructor(
         return result
     }
 
+    @Deprecated(message = "Replaced shared preference with sqlite")
     suspend fun getOrderDetails(
         orderId: String,
         customerId: Long

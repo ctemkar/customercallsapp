@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CustomerCallingV2">
         <activity
+            android:name=".activities.order.viewallorders.AllOrdersActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.order.vieworderdetails.ViewOrderDetailsActivity"
             android:exported="false" />
         <activity
@@ -25,8 +28,8 @@
             android:exported="false" />
         <activity
             android:name=".activities.menuitems.add.AddMenuItemActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
             android:name=".activities.menuitems.view.ViewMenuItemsActivity"
             android:exported="false" />
@@ -52,10 +55,6 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".FloatingWindow"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

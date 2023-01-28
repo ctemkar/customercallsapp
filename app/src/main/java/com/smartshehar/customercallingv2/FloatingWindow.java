@@ -37,6 +37,7 @@ public class FloatingWindow extends Worker {
 
     private static final String TAG = "FloatingWindow";
 
+
     /**
      * @param appContext   The application {@link Context}
      * @param workerParams Parameters to setup the internal state of this worker

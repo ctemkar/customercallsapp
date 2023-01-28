@@ -6,7 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.models.OrderItem
-import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithOrderItem
+import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 
 @Dao
@@ -31,5 +31,9 @@ interface CustomerOrderDao {
 
     @Query("select count (price) from orderitem,customerorder where menuItemId=:itemId and customerId=:customerId and parentOrderId=orderId")
     fun getOrderItemCountFromOrder(itemId: Long, customerId: Long): Int
+
+    @Transaction
+    @Query("select * from customerorder")
+    fun getAllCustomerOrders(): List<CustomerOrderWithCustomer>
 
 }

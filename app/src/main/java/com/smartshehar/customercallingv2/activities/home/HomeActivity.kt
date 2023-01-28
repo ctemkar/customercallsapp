@@ -23,6 +23,7 @@ import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItems
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
+import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.utils.Constants
@@ -49,6 +50,10 @@ class HomeActivity : AppCompatActivity() {
 
         binding.rlMenuHome.setOnClickListener {
             startActivity(Intent(this, ViewMenuItemsActivity::class.java))
+        }
+
+        binding.rlOrdersHome.setOnClickListener{
+            startActivity(Intent(this,AllOrdersActivity::class.java))
         }
 
 
