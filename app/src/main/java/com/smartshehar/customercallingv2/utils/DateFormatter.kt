@@ -10,7 +10,7 @@ class DateFormatter {
             // Creating date format
 
             // Creating date format
-            val simple: DateFormat = SimpleDateFormat("HH:mm dd-MMM-yyyy")
+            val simple: DateFormat = SimpleDateFormat("HH:mm dd/MMM/yyyy")
             val result = Date(timeInMillis)
 
             // Formatting Date according to the

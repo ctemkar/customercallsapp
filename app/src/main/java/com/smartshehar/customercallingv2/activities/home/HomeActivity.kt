@@ -2,13 +2,18 @@ package com.smartshehar.customercallingv2.activities.home
 
 import android.Manifest.permission.READ_CALL_LOG
 import android.Manifest.permission.READ_PHONE_STATE
+import android.R
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -19,14 +24,14 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
-import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
-import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
+import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.utils.Constants
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -36,6 +41,7 @@ class HomeActivity : AppCompatActivity() {
     private val TAG = "HomeActivity"
     private lateinit var binding: ActivityHomeBinding
     private val viewModel: HomeActivityVM by viewModels()
+    private var customersList = ArrayList<Customer>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +58,8 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, ViewMenuItemsActivity::class.java))
         }
 
-        binding.rlOrdersHome.setOnClickListener{
-            startActivity(Intent(this,AllOrdersActivity::class.java))
+        binding.rlOrdersHome.setOnClickListener {
+            startActivity(Intent(this, AllOrdersActivity::class.java))
         }
 
 
@@ -74,28 +80,68 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    lateinit var mAdapter: CustomerListHomeAdapter
     private fun showCustomerDataList(it: EventData<List<Customer>>?) {
         if (it != null) {
-            val mAdapter = CustomerListHomeAdapter(it.data!!)
+            customersList = (it.data as ArrayList<Customer>?)!!
+            mAdapter = CustomerListHomeAdapter(customersList)
 
             //Set recycler list items of customers data
             binding.rViewCustomersHome.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
                 adapter = mAdapter
             }
-
-
             //Set listener on list item to launch into new activity
             mAdapter.setOnClickListener(object :
                 CustomerListHomeAdapter.OnItemClickListener {
                 override fun onItemClick(position: Int) {
                     val intent =
                         Intent(applicationContext, ViewCustomerActivity::class.java)
-                    intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, it.data!![position].customerId.toLong())
+                    intent.putExtra(
+                        Constants.INTENT_DATA_CUSTOMER_ID,
+                        it.data!![position].customerId.toLong()
+                    )
                     Log.d(TAG, "onItemClick: ${it.data!![position].customerId}")
                     startActivity(intent)
                 }
             })
+
+            setSearchTextChangeListener()
+        }
+    }
+
+    private fun setSearchTextChangeListener() {
+        binding.etSearchCustomersHome.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                filterSearchResults(s)
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
+
+    }
+
+    private fun filterSearchResults(searchText: CharSequence) {
+        if (searchText.isEmpty()) {
+            mAdapter.updateData(customersList)
+        } else {
+            val customersSearchList = ArrayList<Customer>()
+            customersList.forEach {
+                if (it.firstName?.contains(searchText) == true) {
+                    customersSearchList.add(it)
+                } else if (it.msPhoneNo.contains(searchText)) {
+                    customersSearchList.add(it)
+                }
+            }
+            mAdapter.updateData(customersSearchList)
         }
     }
 

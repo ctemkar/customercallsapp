@@ -1,21 +1,24 @@
 package com.smartshehar.customercallingv2.activities.order.vieworderdetails
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryItemAdapter
+import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerVM
 import com.smartshehar.customercallingv2.databinding.ActivityViewOrderDetailsBinding
-import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+
 
 @AndroidEntryPoint
 class ViewOrderDetailsActivity : AppCompatActivity() {
@@ -23,6 +26,7 @@ class ViewOrderDetailsActivity : AppCompatActivity() {
     private val TAG = "ViewOrderDetailsActivity"
     private lateinit var binding: ActivityViewOrderDetailsBinding
     private val viewModel: ViewOrderDetailsVM by viewModels()
+    private val customerViewModel : ViewCustomerVM by viewModels()
     private var customerId: Long = 0
     private var orderId: Long = 0
     private var totalAmount: Double = 0.0
@@ -63,6 +67,33 @@ class ViewOrderDetailsActivity : AppCompatActivity() {
             }
         }
 
+
+        customerViewModel.getCustomerData(customerId).observe(this){
+            when(it.eventStatus){
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    val customer = it.data!!
+                    binding.tvCustNameOrderDetail.text = customer.firstName
+                    val addressStringBuilder = StringBuilder()
+                    addressStringBuilder.append(customer.houseNo).append("\n").append(customer.area).append("\n")
+                    binding.tvCustAddressOrderDetail.text = addressStringBuilder.toString()
+                    binding.tvCustContactOrderDetail.text = customer.msPhoneNo
+                    setCallButtonListener(customer.msPhoneNo)
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+            }
+        }
+
+
+    }
+
+    private fun setCallButtonListener(msPhoneNo: String) {
+        binding.btCallCustomer.setOnClickListener{
+            val callIntent = Intent(Intent.ACTION_CALL)
+            callIntent.data = Uri.parse("tel:" + msPhoneNo) //change the number
+            startActivity(callIntent)
+        }
     }
 
     private fun setToolbar() {

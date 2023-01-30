@@ -1,13 +1,17 @@
 package com.smartshehar.customercallingv2.activities.customer.addcustomer
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.databinding.ActivityAddCustomerBinding
-import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -23,7 +27,10 @@ class AddCustomerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setToolbar()
         binding.etNewCustomerName.requestFocus()
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
 
         binding.btAddCustomer.setOnClickListener {
             if(validCustomer()) {
@@ -45,10 +52,16 @@ class AddCustomerActivity : AppCompatActivity() {
             }
         }
 
+
+
+    }
+
+
+    private fun setToolbar() {
+        findViewById<TextView>(R.id.tv_tbTitle).text = "New Customer"
         findViewById<ImageButton>(R.id.bt_backToolbar).setOnClickListener {
             finish()
         }
-
     }
 
     private fun validCustomer(): Boolean {

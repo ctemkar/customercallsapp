@@ -14,6 +14,10 @@ class CustomerListHomeAdapter(var customerList: List<Customer>) :
 
     class ViewHolder(val binding: ListCustomerHomeBinding) : RecyclerView.ViewHolder(binding.root)
 
+    fun updateData(customerList: List<Customer>){
+        this.customerList = customerList
+        notifyDataSetChanged()
+    }
     interface OnItemClickListener {
         fun onItemClick(position: Int)
     }

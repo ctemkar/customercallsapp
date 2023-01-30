@@ -19,7 +19,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Customer::class, MenuItem::class, CustomerOrder::class, OrderItem::class],
-    version = 16
+    version = 17
 )
 @TypeConverters(MapTypeConverter::class)
 abstract class AppLocalDatabase : RoomDatabase() {
