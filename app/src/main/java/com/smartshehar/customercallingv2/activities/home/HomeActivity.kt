@@ -1,29 +1,33 @@
 package com.smartshehar.customercallingv2.activities.home
 
-import android.Manifest.permission.READ_CALL_LOG
-import android.Manifest.permission.READ_PHONE_STATE
+import android.Manifest.permission.*
 import android.R
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.View
-import android.widget.TextView
+import android.view.Gravity
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amaze.emanage.events.EventData
+import com.skydoves.powermenu.MenuAnimation
+import com.skydoves.powermenu.OnMenuItemClickListener
+import com.skydoves.powermenu.PowerMenu
+import com.skydoves.powermenu.PowerMenuItem
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
+import com.smartshehar.customercallingv2.activities.auth.AuthenticationVM
+import com.smartshehar.customercallingv2.activities.auth.LoginActivity
 import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
@@ -32,7 +36,9 @@ import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
+import com.smartshehar.customercallingv2.utils.states.AuthState
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -41,8 +47,10 @@ class HomeActivity : AppCompatActivity() {
     private val TAG = "HomeActivity"
     private lateinit var binding: ActivityHomeBinding
     private val viewModel: HomeActivityVM by viewModels()
+    private val authViewModel : AuthenticationVM by viewModels()
     private var customersList = ArrayList<Customer>()
-
+    @Inject
+    lateinit var authState : AuthState
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -63,6 +71,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
 
+
     }
 
     private fun loadData() {
@@ -78,6 +87,62 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.ERROR -> TODO()
             }
         }
+
+        authViewModel.getProfileData().observe(this){
+            when(it.eventStatus){
+                EventStatus.LOADING -> {
+                    TODO()
+                }
+                EventStatus.SUCCESS -> {
+                    Log.d(TAG, "loadData: ${it.data!!.ownerName}")
+                    if(it.data != null){
+                        if(it.data!!.selectedRestaurant == null){
+                            binding.tvSelectedRestaurant.text = "No selected restaurant"
+                        }else{
+                            binding.tvSelectedRestaurant.text = it.data!!.selectedRestaurant!!.restaurantName
+                        }
+                        Toast.makeText(applicationContext,it.data!!.ownerName,Toast.LENGTH_SHORT).show()
+                        powerMenu.showAsDropDown(binding.cardSelectedRestaurant)
+                    }
+                }
+                EventStatus.ERROR -> {
+                    Toast.makeText(applicationContext,"Session Expired, please login again",Toast.LENGTH_SHORT).show()
+                    authState.clearLoginState()
+                    startActivity(Intent(applicationContext,LoginActivity::class.java))
+                }
+                EventStatus.EMPTY -> TODO()
+            }
+        }
+
+        setupMenu()
+
+    }
+
+    lateinit var powerMenu: PowerMenu
+    fun setupMenu(){
+        val onMenuItemClickListener: OnMenuItemClickListener<PowerMenuItem?> =
+            OnMenuItemClickListener<PowerMenuItem?> { position, item ->
+                //Toast.makeText(baseContext, item.getTitle(), Toast.LENGTH_SHORT).show()
+                powerMenu.selectedPosition = position // change selected item
+                powerMenu.dismiss()
+            }
+        powerMenu = PowerMenu.Builder(applicationContext)
+            // list has "Novel", "Poetry", "Art"
+            .addItem(PowerMenuItem("Journals", false)) // add an item.
+            .addItem(PowerMenuItem("Travel", false)) // aad an item list.
+            .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
+            .setMenuRadius(10f) // sets the corner radius.
+            .setMenuShadow(10f) // sets the shadow.
+            .setTextColor(ContextCompat.getColor(applicationContext, R.color.holo_red_dark))
+            .setTextGravity(Gravity.CENTER)
+            .setTextTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD))
+            .setSelectedTextColor(Color.WHITE)
+            .setMenuColor(Color.WHITE)
+            .setSelectedMenuColor(ContextCompat.getColor(applicationContext, R.color.holo_purple))
+            .setOnMenuItemClickListener(onMenuItemClickListener)
+            .build()
+
+
     }
 
     lateinit var mAdapter: CustomerListHomeAdapter
@@ -137,7 +202,7 @@ class HomeActivity : AppCompatActivity() {
             customersList.forEach {
                 if (it.firstName?.contains(searchText) == true) {
                     customersSearchList.add(it)
-                } else if (it.msPhoneNo.contains(searchText)) {
+                } else if (it.contactNumber.contains(searchText)) {
                     customersSearchList.add(it)
                 }
             }
@@ -188,6 +253,26 @@ class HomeActivity : AppCompatActivity() {
                 )
             }
         }
+
+        if (ContextCompat.checkSelfPermission(this@HomeActivity, CALL_PHONE) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this@HomeActivity,
+                    CALL_PHONE
+                )
+            ) {
+                ActivityCompat.requestPermissions(
+                    this@HomeActivity,
+                    arrayOf(CALL_PHONE), 1
+                )
+            } else {
+                ActivityCompat.requestPermissions(
+                    this@HomeActivity,
+                    arrayOf(CALL_PHONE), 1
+                )
+            }
+        }
     }
 
     private fun showDialog(titleText: String, messageText: String) {
@@ -201,7 +286,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun requestPermission() {
         val intent = Intent(
             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

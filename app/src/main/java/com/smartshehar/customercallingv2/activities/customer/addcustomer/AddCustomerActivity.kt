@@ -1,9 +1,7 @@
 package com.smartshehar.customercallingv2.activities.customer.addcustomer
 
-import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -36,7 +34,7 @@ class AddCustomerActivity : AppCompatActivity() {
             if(validCustomer()) {
                 val customer = Customer()
                 customer.firstName = binding.etNewCustomerName.text.toString()
-                customer.msPhoneNo = binding.etNewCustomerPhone.text.toString()
+                customer.contactNumber = binding.etNewCustomerPhone.text.toString()
                 customer.houseNo = binding.etNewCustomerHouseFlatNo.text.toString()
                 customer.area = binding.etNewCustomerAreaStreet.text.toString()
                 viewModel.createNewCustomer(customer).observe(this){

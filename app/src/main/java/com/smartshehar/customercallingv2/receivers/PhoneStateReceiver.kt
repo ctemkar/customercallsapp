@@ -15,7 +15,6 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
-import kotlin.math.log
 
 class PhoneStateReceiver : BroadcastReceiver() {
     private val TAG = "PhoneStateReceiver"
@@ -70,7 +69,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
             } else {
                 serviceIntent.putExtra("name", customer.firstName)
                 serviceIntent.putExtra("id", customer.customerId)
-                serviceIntent.putExtra("phone", customer.msPhoneNo)
+                serviceIntent.putExtra("phone", customer.contactNumber)
             }
 
             when {
@@ -80,7 +79,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
                         data.putBoolean("isNewCustomer", true)
                     } else {
                         data.putString("name", customer.firstName)
-                        data.putString("phone", customer.msPhoneNo)
+                        data.putString("phone", customer.contactNumber)
                         data.putInt("id", customer.customerId)
                     }
                     val request: OneTimeWorkRequest =

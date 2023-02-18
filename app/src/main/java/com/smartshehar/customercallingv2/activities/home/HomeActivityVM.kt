@@ -33,6 +33,8 @@ class HomeActivityVM @Inject constructor(
         return customersLiveData
     }
 
+
+
     //Must remove observer manually as this one is not lifecycle aware
     override fun onCleared() {
         customerDao.getAllCustomers().removeObserver(customerListObserver)

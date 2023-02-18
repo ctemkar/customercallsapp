@@ -22,12 +22,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/include"
+            app:cardElevation="7dp"
             android:layout_margin="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_margin="8dp"
                 android:padding="10dp">
 
 

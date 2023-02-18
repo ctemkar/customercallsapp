@@ -23,7 +23,7 @@ interface CustomerDao {
     @Query("select * from customer")
     fun getAllCustomers(): LiveData<List<Customer>>
 
-    @Query("select * from customer where msPhoneNo=:phoneNumber")
+    @Query("select * from customer where contactNumber=:phoneNumber")
     fun getCustomerByPhoneNumber(phoneNumber: String): Customer
 
 

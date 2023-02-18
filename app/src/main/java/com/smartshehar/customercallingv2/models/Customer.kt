@@ -2,11 +2,9 @@ package com.smartshehar.customercallingv2.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import lombok.*
 import java.io.Serializable
-import java.util.*
 
 @Getter
 @Setter
@@ -24,7 +22,7 @@ class Customer : Serializable{
     var msLastName = ""
     var msCountryCode = ""
     var msNationalNumber = ""
-    var msPhoneNo = ""
+    var contactNumber = ""
     var houseNo = ""
     var totalOrders = 0
     var area : String = ""

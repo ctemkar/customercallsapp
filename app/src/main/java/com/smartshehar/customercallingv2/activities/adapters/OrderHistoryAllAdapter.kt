@@ -30,7 +30,7 @@ class OrderHistoryAllAdapter(private val ordersList: List<CustomerOrderWithCusto
 
             with(ordersList[position].customerOrder) {
                 tvTotalAmountOrderListAll.text = orderTotalAmount.toString()
-                tvCustomerContactOrderListAll.text = ordersList[position].customer.msPhoneNo.toString()
+                tvCustomerContactOrderListAll.text = ordersList[position].customer.contactNumber.toString()
                 tvOrderedOnOrderListAll.text = DateFormatter.getDateFormatted(orderDate)
                 tvCustomerNameOrderListAll.text = ordersList[position].customer.firstName
             }

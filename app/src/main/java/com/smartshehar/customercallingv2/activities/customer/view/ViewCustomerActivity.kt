@@ -14,13 +14,10 @@ import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
 import com.smartshehar.customercallingv2.activities.order.add.AddCustomerOrderActivity
 import com.smartshehar.customercallingv2.activities.order.vieworderdetails.ViewOrderDetailsActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
-import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
-import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
@@ -73,7 +70,7 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
                     with(binding) {
                         with(it.data) {
                             tvCustomerViewName.text = this?.firstName ?: ""
-                            tvCustomerViewContact.text = this?.msPhoneNo
+                            tvCustomerViewContact.text = this?.contactNumber
                             tvCustomerViewStreet.text  = this?.area ?: ""
                             tvCustomerViewFlatNo.text = this?.houseNo
 

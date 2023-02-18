@@ -17,7 +17,6 @@ import com.smartshehar.customercallingv2.databinding.ActivityViewOrderDetailsBin
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 
 
 @AndroidEntryPoint
@@ -77,8 +76,8 @@ class ViewOrderDetailsActivity : AppCompatActivity() {
                     val addressStringBuilder = StringBuilder()
                     addressStringBuilder.append(customer.houseNo).append("\n").append(customer.area).append("\n")
                     binding.tvCustAddressOrderDetail.text = addressStringBuilder.toString()
-                    binding.tvCustContactOrderDetail.text = customer.msPhoneNo
-                    setCallButtonListener(customer.msPhoneNo)
+                    binding.tvCustContactOrderDetail.text = customer.contactNumber
+                    setCallButtonListener(customer.contactNumber)
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
