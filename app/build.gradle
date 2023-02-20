@@ -103,6 +103,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
 
     //Custom popup menu
-    implementation "com.github.skydoves:powermenu:2.2.0"
+    implementation "com.github.skydoves:powermenu:2.2.2"
 
 }

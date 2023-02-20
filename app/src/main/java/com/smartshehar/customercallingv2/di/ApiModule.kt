@@ -3,6 +3,7 @@ package com.smartshehar.customercallingv2.di
 import android.app.Application
 import android.util.Log
 import com.smartshehar.customercallingv2.repositories.api.AuthApi
+import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import dagger.hilt.InstallIn
 import dagger.Module
@@ -55,5 +56,10 @@ object ApiModule {
     @Provides
     fun provideLoginApi(retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    fun provideRestaurantApi(retrofit: Retrofit): RestaurantApi {
+        return retrofit.create(RestaurantApi::class.java)
     }
 }

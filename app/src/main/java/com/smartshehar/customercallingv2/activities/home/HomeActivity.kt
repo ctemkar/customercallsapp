@@ -1,18 +1,21 @@
 package com.smartshehar.customercallingv2.activities.home
 
 import android.Manifest.permission.*
-import android.R
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Gravity
+import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -20,11 +23,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.amaze.emanage.events.EventData
-import com.skydoves.powermenu.MenuAnimation
-import com.skydoves.powermenu.OnMenuItemClickListener
-import com.skydoves.powermenu.PowerMenu
-import com.skydoves.powermenu.PowerMenuItem
+import com.smartshehar.customercallingv2.R
+import com.smartshehar.customercallingv2.activities.adapters.AvailableRestaurantAdapter
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
 import com.smartshehar.customercallingv2.activities.auth.AuthenticationVM
 import com.smartshehar.customercallingv2.activities.auth.LoginActivity
@@ -34,6 +36,7 @@ import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItems
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.models.Restaurant
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
@@ -47,10 +50,15 @@ class HomeActivity : AppCompatActivity() {
     private val TAG = "HomeActivity"
     private lateinit var binding: ActivityHomeBinding
     private val viewModel: HomeActivityVM by viewModels()
-    private val authViewModel : AuthenticationVM by viewModels()
+    private val authViewModel: AuthenticationVM by viewModels()
     private var customersList = ArrayList<Customer>()
+    var selectedRestaurant: Restaurant? = null
+    var availableRestaurants = ArrayList<Restaurant>()
+    private var mRestaurantAdapter: AvailableRestaurantAdapter? = null
+
+
     @Inject
-    lateinit var authState : AuthState
+    lateinit var authState: AuthState
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -71,7 +79,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
 
-
     }
 
     private fun loadData() {
@@ -88,61 +95,117 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        authViewModel.getProfileData().observe(this){
-            when(it.eventStatus){
+        authViewModel.getProfileData().observe(this) {
+            when (it.eventStatus) {
                 EventStatus.LOADING -> {
                     TODO()
                 }
                 EventStatus.SUCCESS -> {
                     Log.d(TAG, "loadData: ${it.data!!.ownerName}")
-                    if(it.data != null){
-                        if(it.data!!.selectedRestaurant == null){
+                    if (it.data != null) {
+                        if (it.data!!.selectedRestaurant == null) {
                             binding.tvSelectedRestaurant.text = "No selected restaurant"
-                        }else{
-                            binding.tvSelectedRestaurant.text = it.data!!.selectedRestaurant!!.restaurantName
+                        } else {
+                            binding.tvSelectedRestaurant.text =
+                                it.data!!.selectedRestaurant!!.restaurantName
+                            selectedRestaurant = it.data!!.selectedRestaurant
                         }
-                        Toast.makeText(applicationContext,it.data!!.ownerName,Toast.LENGTH_SHORT).show()
-                        powerMenu.showAsDropDown(binding.cardSelectedRestaurant)
+                        //Set Restaurant list Items on top
+                        setRestaurantListeners()
                     }
                 }
                 EventStatus.ERROR -> {
-                    Toast.makeText(applicationContext,"Session Expired, please login again",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Session Expired, please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     authState.clearLoginState()
-                    startActivity(Intent(applicationContext,LoginActivity::class.java))
+                    startActivity(Intent(applicationContext, LoginActivity::class.java))
                 }
                 EventStatus.EMPTY -> TODO()
             }
         }
 
-        setupMenu()
 
+        viewModel.getRestaurantsList().observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    availableRestaurants = it.data as ArrayList<Restaurant>
+                    mRestaurantAdapter = AvailableRestaurantAdapter(availableRestaurants)
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+            }
+        }
     }
 
-    lateinit var powerMenu: PowerMenu
-    fun setupMenu(){
-        val onMenuItemClickListener: OnMenuItemClickListener<PowerMenuItem?> =
-            OnMenuItemClickListener<PowerMenuItem?> { position, item ->
-                //Toast.makeText(baseContext, item.getTitle(), Toast.LENGTH_SHORT).show()
-                powerMenu.selectedPosition = position // change selected item
-                powerMenu.dismiss()
+
+    private fun setRestaurantListeners() {
+        binding.cardSelectedRestaurant.setOnClickListener {
+            setupMenu()
+        }
+    }
+
+
+    lateinit var dialog: Dialog
+    private fun setupMenu() {
+        if(this::dialog.isInitialized) {
+            if (dialog.isShowing)
+                dialog.dismiss()
+        }
+        dialog = Dialog(this@HomeActivity)
+        dialog.setContentView(R.layout.alert_select_restaurants)
+        if (selectedRestaurant != null) {
+            dialog.findViewById<TextView>(R.id.tv_restaurantNameSelectedAlert).text =
+                selectedRestaurant!!.restaurantName
+        } else {
+            //Hide the selected item and show no available
+            dialog.findViewById<LinearLayout>(R.id.ll_activeRestaurant).visibility = View.GONE
+            dialog.findViewById<TextView>(R.id.tv_noActiveRestaurantAlert).visibility = View.VISIBLE
+        }
+        if (mRestaurantAdapter != null) {
+            dialog.findViewById<ProgressBar>(R.id.pgBar_availableRestaurants).visibility = View.GONE
+            dialog.findViewById<RecyclerView>(R.id.rView_availableRestaurants).apply {
+                adapter = mRestaurantAdapter
+                layoutManager = LinearLayoutManager(applicationContext)
             }
-        powerMenu = PowerMenu.Builder(applicationContext)
-            // list has "Novel", "Poetry", "Art"
-            .addItem(PowerMenuItem("Journals", false)) // add an item.
-            .addItem(PowerMenuItem("Travel", false)) // aad an item list.
-            .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
-            .setMenuRadius(10f) // sets the corner radius.
-            .setMenuShadow(10f) // sets the shadow.
-            .setTextColor(ContextCompat.getColor(applicationContext, R.color.holo_red_dark))
-            .setTextGravity(Gravity.CENTER)
-            .setTextTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD))
-            .setSelectedTextColor(Color.WHITE)
-            .setMenuColor(Color.WHITE)
-            .setSelectedMenuColor(ContextCompat.getColor(applicationContext, R.color.holo_purple))
-            .setOnMenuItemClickListener(onMenuItemClickListener)
-            .build()
+            mRestaurantAdapter!!.setOnItemClickListener(object :
+                AvailableRestaurantAdapter.OnItemClickListener {
+                override fun onClick(position: Int) {
+                    updateSelectedRestaurant(position)
+                }
+            })
+        } else {
+            dialog.findViewById<ProgressBar>(R.id.pgBar_availableRestaurants).visibility = View.GONE
+        }
 
+        // val dialogButton: Button = dialog.findViewById(com.smartshehar.customercallingv2.R.id.dialogButtonOK) as Button
+        // if button is clicked, close the custom dialog
+        // if button is clicked, close the custom dialog
+//        dialogButton.setOnClickListener(object : DialogInterface.OnClickListener() {
+//            fun onClick(v: View?) {
+//                dialog.dismiss()
+//                Toast.makeText(applicationContext, "Dismissed..!!", Toast.LENGTH_SHORT).show()
+//            }
+//        })
+        dialog.show()
+    }
 
+    private fun updateSelectedRestaurant(position: Int) {
+        val selectedId = availableRestaurants[position]._id
+        viewModel.updateSelectedRestaurant(selectedId).observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    selectedRestaurant = availableRestaurants[position]
+                    setupMenu()
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+            }
+        }
     }
 
     lateinit var mAdapter: CustomerListHomeAdapter

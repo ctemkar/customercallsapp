@@ -54,6 +54,8 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
             android:name=".activities.home.HomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CustomerCallingV2"
             android:exported="true">
 
         </activity>

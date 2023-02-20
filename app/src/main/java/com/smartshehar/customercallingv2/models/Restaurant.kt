@@ -4,6 +4,7 @@ import lombok.ToString
 
 @ToString
 class Restaurant {
+    var _id : String = ""
     var restaurantName : String = ""
     var ownerId : String= ""
     var addressLine1 : String = ""
