@@ -85,7 +85,7 @@ public class FloatingWindow extends Worker {
     }
 
     private void startNewOrderActivity() {
-        long customerId = getInputData().getInt("id", 0);
+        long customerId = getInputData().getLong("id", 0);
         Intent intent = new Intent(getApplicationContext(), AddCustomerOrderActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, customerId);

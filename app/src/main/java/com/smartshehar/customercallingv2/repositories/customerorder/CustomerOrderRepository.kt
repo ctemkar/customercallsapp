@@ -19,7 +19,12 @@ import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
 
-
+/**
+ * Repository layer for customer orders
+ * Manages customer orders and responsible for data supply from sqlite db and api
+ * Constructors will be injected by dagger hilt
+ * Created by Rithik S (coderithik@gmail.com)  on 12/01/2023
+ */
 class CustomerOrderRepository @Inject constructor(
     private val application: Application,
     private val customerOrderDao: CustomerOrderDao,

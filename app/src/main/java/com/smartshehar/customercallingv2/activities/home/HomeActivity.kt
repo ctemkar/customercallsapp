@@ -87,11 +87,19 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.EMPTY -> {
 
                 }
-                EventStatus.LOADING -> TODO()
+                EventStatus.LOADING -> {
+
+                }
                 EventStatus.SUCCESS -> {
+                    hideSyncingView()
                     showCustomerDataList(it)
                 }
-                EventStatus.ERROR -> TODO()
+                EventStatus.ERROR -> {
+
+                }
+                EventStatus.CACHE_DATA -> {
+                    showCustomerDataList(it)
+                }
             }
         }
 
@@ -124,6 +132,7 @@ class HomeActivity : AppCompatActivity() {
                     startActivity(Intent(applicationContext, LoginActivity::class.java))
                 }
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
 
@@ -137,8 +146,13 @@ class HomeActivity : AppCompatActivity() {
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
+    }
+
+    private fun hideSyncingView() {
+        findViewById<LinearLayout>(R.id.ll_syncingLayout).visibility = View.GONE
     }
 
 
@@ -151,7 +165,7 @@ class HomeActivity : AppCompatActivity() {
 
     lateinit var dialog: Dialog
     private fun setupMenu() {
-        if(this::dialog.isInitialized) {
+        if (this::dialog.isInitialized) {
             if (dialog.isShowing)
                 dialog.dismiss()
         }
@@ -204,6 +218,7 @@ class HomeActivity : AppCompatActivity() {
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
     }

@@ -3,17 +3,18 @@ package com.smartshehar.customercallingv2.repositories.customer
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.smartshehar.customercallingv2.models.Customer
-import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 
 @Dao
 interface CustomerDao {
 
     @Insert
-    fun insert(customer: Customer)
-
+    fun insert(customer: Customer) : Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertCustomers(customers: List<Customer>)
     @Update
     fun update(customer: Customer)
 
@@ -22,6 +23,12 @@ interface CustomerDao {
 
     @Query("select * from customer")
     fun getAllCustomers(): LiveData<List<Customer>>
+
+    @Query("delete from customer where restaurantId=:restaurantId")
+    fun deleteCustomersWithRestaurantId(restaurantId: String)
+
+    @Query("delete from customer")
+    fun deleteAllCustomerDetails()
 
     @Query("select * from customer where contactNumber=:phoneNumber")
     fun getCustomerByPhoneNumber(phoneNumber: String): Customer

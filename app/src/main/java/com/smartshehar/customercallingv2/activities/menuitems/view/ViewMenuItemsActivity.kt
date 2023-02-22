@@ -46,6 +46,7 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
 

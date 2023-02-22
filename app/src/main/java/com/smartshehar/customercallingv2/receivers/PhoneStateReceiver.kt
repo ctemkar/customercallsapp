@@ -13,6 +13,8 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
+import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.sqlite.AppLocalDatabase
 
@@ -23,8 +25,6 @@ class PhoneStateReceiver : BroadcastReceiver() {
     lateinit var customerRepository: CustomerRepository
 
     override fun onReceive(context: Context, intent: Intent) {
-        val db = AppLocalDatabase.getInstance(context)
-        customerRepository = CustomerRepository(db.customerDao())
 
         try {
             if (isTriggered) {
@@ -45,7 +45,8 @@ class PhoneStateReceiver : BroadcastReceiver() {
                             if (incomingNumber2 != null) {
                                 Log.d(TAG, "onReceive: ${customerRepository}")
                                 Log.d(TAG, "onCallStateChanged: Launched worker")
-                                startPopupShowWorker(context, incomingNumber2)
+                                val db = AppLocalDatabase.getInstance(context)
+                                startPopupShowWorker(context, incomingNumber2,db.customerDao())
                             }
                             stateString = "Ringing"
                         }
@@ -59,11 +60,13 @@ class PhoneStateReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun startPopupShowWorker(context: Context, incomingNumber: String) {
+
+
+    private fun startPopupShowWorker(context: Context, incomingNumber: String,customerDao: CustomerDao) {
         try {
             val serviceIntent = Intent(context, FloatingWindow::class.java)
 
-            val customer = customerRepository.getCustomerDetailsByNumber(incomingNumber)
+            val customer = getCustomerDetailsByNumber(incomingNumber, customerDao)
             if (customer == null) {
                 serviceIntent.putExtra("isNewCustomer", true);
             } else {
@@ -80,7 +83,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
                     } else {
                         data.putString("name", customer.firstName)
                         data.putString("phone", customer.contactNumber)
-                        data.putInt("id", customer.customerId)
+                        data.putLong("id", customer.customerId)
                     }
                     val request: OneTimeWorkRequest =
                         OneTimeWorkRequest.Builder(FloatingWindow::class.java)
@@ -101,5 +104,14 @@ class PhoneStateReceiver : BroadcastReceiver() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun getCustomerDetailsByNumber(unformattedContactNumber: String, customerDao: CustomerDao): Customer {
+        var contactNumber = unformattedContactNumber
+        if (contactNumber.startsWith("+91")) {
+            contactNumber = unformattedContactNumber.substring(3)
+        }
+        Log.d(TAG, "getCustomerDetailsWithNumber: $contactNumber")
+        return customerDao.getCustomerByPhoneNumber(contactNumber)
     }
 }

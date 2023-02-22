@@ -1,6 +1,7 @@
 package com.smartshehar.customercallingv2.di
 
 import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.repositories.api.CustomerApi
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemDao
@@ -15,8 +16,8 @@ import dagger.hilt.components.SingletonComponent
 object RepoModule {
 
     @Provides
-    fun getCustomerRepo(customerDao: CustomerDao) : CustomerRepository {
-        return CustomerRepository(customerDao)
+    fun getCustomerRepo(customerDao: CustomerDao,customerApi: CustomerApi) : CustomerRepository {
+        return CustomerRepository(customerDao, customerApi )
     }
 
     @Provides

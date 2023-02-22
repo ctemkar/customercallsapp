@@ -47,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
                         }
                         EventStatus.SUCCESS -> {
                             startActivity(Intent(applicationContext, HomeActivity::class.java))
+                            finish()
                         }
                         EventStatus.ERROR -> {
                             binding.pgBarLogin.visibility = View.GONE
@@ -54,6 +55,7 @@ class LoginActivity : AppCompatActivity() {
                             binding.tvErrorLogin.visibility = View.VISIBLE
                         }
                         EventStatus.EMPTY -> TODO()
+                        else -> {}
                     }
                 }
             }

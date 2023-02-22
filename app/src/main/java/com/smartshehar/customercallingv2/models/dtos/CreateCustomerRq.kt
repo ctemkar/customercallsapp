@@ -1,25 +1,12 @@
-package com.smartshehar.customercallingv2.models
+package com.smartshehar.customercallingv2.models.dtos
 
 import androidx.room.ColumnInfo
-import androidx.room.Entity
 import androidx.room.PrimaryKey
-import lombok.*
-import java.io.Serializable
+import com.smartshehar.customercallingv2.models.Customer
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-@Entity
-class Customer : Serializable {
+class CreateCustomerRq(customer: Customer) {
 
-    @PrimaryKey(autoGenerate = true)
     var customerId: Long = 0
-
-    var _id: String = ""
-
-    @ColumnInfo(name = "first_name")
     var firstName: String? = null
     var contactNumber = ""
     var houseNo = ""
@@ -33,6 +20,14 @@ class Customer : Serializable {
     var mIsDeleted = false
     var mIsNew = true
     var dateCreated: Long = -1
-    var restaurantId : String = ""
 
+    init {
+        customerId = customer.customerId
+        firstName = customer.firstName
+        contactNumber = customer.contactNumber
+
+        addressLine1 = customer.addressLine1
+        addressLine2 = customer.addressLine2
+        pincode = customer.pincode
+    }
 }

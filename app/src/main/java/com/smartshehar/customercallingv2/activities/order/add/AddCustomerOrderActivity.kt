@@ -57,6 +57,7 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
 
@@ -111,6 +112,7 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
                 EventStatus.EMPTY -> {
 
                 }
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
     }

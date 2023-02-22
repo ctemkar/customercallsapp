@@ -36,15 +36,19 @@ class AddCustomerActivity : AppCompatActivity() {
                 customer.firstName = binding.etNewCustomerName.text.toString()
                 customer.contactNumber = binding.etNewCustomerPhone.text.toString()
                 customer.houseNo = binding.etNewCustomerHouseFlatNo.text.toString()
-                customer.area = binding.etNewCustomerAreaStreet.text.toString()
+                customer.addressLine1 = binding.etNewCustomerAddressLine1.text.toString()
+                customer.pincode =  binding.etNewCustomerPincode.text.toString().toLong()
                 viewModel.createNewCustomer(customer).observe(this){
                     when(it.eventStatus){
                         EventStatus.LOADING -> TODO()
                         EventStatus.SUCCESS -> {
                             finish()
                         }
-                        EventStatus.ERROR -> TODO()
+                        EventStatus.ERROR -> {
+
+                        }
                         EventStatus.EMPTY -> TODO()
+                        EventStatus.CACHE_DATA -> TODO()
                     }
                 }
             }

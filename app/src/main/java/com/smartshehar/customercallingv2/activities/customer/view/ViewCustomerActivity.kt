@@ -79,6 +79,7 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
 
@@ -100,6 +101,7 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
             }
         }
     }

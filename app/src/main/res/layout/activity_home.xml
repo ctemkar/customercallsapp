@@ -172,6 +172,9 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <include
+            layout="@layout/loading_message_horizontal"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rView_customersHome"
             android:layout_width="match_parent"

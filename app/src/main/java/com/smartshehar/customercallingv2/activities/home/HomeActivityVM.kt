@@ -11,33 +11,40 @@ import com.smartshehar.customercallingv2.models.dtos.UpdateRs
 import com.smartshehar.customercallingv2.models.dtos.UpdateSelectedRestaurantRq
 import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
 import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
+import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
-import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeActivityVM @Inject constructor(
     application: Application,
-    private val customerDao: CustomerDao,
-    private val restaurantApi: RestaurantApi
+    private val customerRepository: CustomerRepository,
+    private val restaurantApi: RestaurantApi,
 ) : AndroidViewModel(application) {
 
     private val customersLiveData = MutableLiveData<EventData<List<Customer>>>()
 
 
-    private val customerListObserver = Observer<List<Customer>> { customer ->
+    private val customerListObserver = Observer<List<Customer>> { it ->
         val data = EventData<List<Customer>>()
-        data.data = customer
-        data.eventStatus = EventStatus.SUCCESS
-        customersLiveData.value = data
+        data.eventStatus = EventStatus.CACHE_DATA
+        data.data = it
+        customersLiveData.postValue(data)
     }
 
     fun getCustomersLiveData(): LiveData<EventData<List<Customer>>> {
         //If observer is not present, then only add new observer
-        if (!customerDao.getAllCustomers().hasObservers()) {
-            customerDao.getAllCustomers().observeForever(customerListObserver)
+        viewModelScope.launch {
+            if (!customerRepository.getCustomers().hasObservers()) {
+                customerRepository.getCustomers().observeForever(customerListObserver)
+            }
+            val fetchStatus = customerRepository.fetchApiData()
+            if (customersLiveData.value != null) {
+                val eventData: EventData<List<Customer>> = customersLiveData.value!!
+                eventData.eventStatus = fetchStatus
+                customersLiveData.postValue(eventData)
+            }
         }
         return customersLiveData
     }
@@ -70,7 +77,7 @@ class HomeActivityVM @Inject constructor(
             val eventData = EventData<UpdateRs>()
             if (result.isSuccessful) {
                 eventData.eventStatus = EventStatus.SUCCESS
-            }else{
+            } else {
                 eventData.eventStatus = EventStatus.ERROR
             }
             updateSelectedStatusLiveData.postValue(eventData)
@@ -80,7 +87,7 @@ class HomeActivityVM @Inject constructor(
 
     //Must remove observer manually as this one is not lifecycle aware
     override fun onCleared() {
-        customerDao.getAllCustomers().removeObserver(customerListObserver)
+        customerRepository.getCustomers().removeObserver(customerListObserver)
         super.onCleared()
     }
 }
