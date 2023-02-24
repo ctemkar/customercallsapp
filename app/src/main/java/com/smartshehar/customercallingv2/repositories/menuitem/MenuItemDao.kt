@@ -23,6 +23,8 @@ interface MenuItemDao {
     @Query("select * from menuitem")
     fun findAllMenuItems() : LiveData<List<MenuItem>>
 
+    @Query("select * from menuitem where isBackedUp=0")
+    fun findAllNonBackedUpMenuItems() : List<MenuItem>
 
 
 }

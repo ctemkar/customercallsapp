@@ -30,6 +30,7 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
         setContentView(binding.root)
         setListeners()
 
+        viewModel.checkPendingBackups()
         viewModel.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {

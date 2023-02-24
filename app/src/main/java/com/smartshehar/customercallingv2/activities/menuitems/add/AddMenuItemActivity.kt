@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.R
@@ -66,9 +67,14 @@ class AddMenuItemActivity : AppCompatActivity() {
             EventStatus.SUCCESS -> {
                 finish()
             }
-            EventStatus.ERROR -> TODO()
+            EventStatus.ERROR -> {
+
+            }
             EventStatus.EMPTY -> TODO()
-            EventStatus.CACHE_DATA -> TODO()
+            EventStatus.CACHE_DATA -> {
+                Toast.makeText(applicationContext,"Unable to save, will sync once network is available",Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 

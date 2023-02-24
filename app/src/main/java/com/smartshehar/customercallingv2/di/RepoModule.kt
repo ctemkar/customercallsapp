@@ -2,6 +2,7 @@ package com.smartshehar.customercallingv2.di
 
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.repositories.api.CustomerApi
+import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemDao
@@ -21,8 +22,8 @@ object RepoModule {
     }
 
     @Provides
-    fun getMenuItemRepo(menuItemDao: MenuItemDao) : MenuItemRepository {
-        return MenuItemRepository(menuItemDao)
+    fun getMenuItemRepo(menuItemDao: MenuItemDao,menuItemApi: MenuItemApi) : MenuItemRepository {
+        return MenuItemRepository(menuItemDao, menuItemApi)
     }
 
 }

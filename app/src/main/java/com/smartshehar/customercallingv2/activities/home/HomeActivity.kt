@@ -95,7 +95,7 @@ class HomeActivity : AppCompatActivity() {
                     showCustomerDataList(it)
                 }
                 EventStatus.ERROR -> {
-
+                    hideSyncingView()
                 }
                 EventStatus.CACHE_DATA -> {
                     showCustomerDataList(it)
@@ -123,13 +123,13 @@ class HomeActivity : AppCompatActivity() {
                     }
                 }
                 EventStatus.ERROR -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "Session Expired, please login again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    authState.clearLoginState()
-                    startActivity(Intent(applicationContext, LoginActivity::class.java))
+                    if(it.error == "NETWORK"){
+                        Toast.makeText(applicationContext, "Please check your network", Toast.LENGTH_SHORT).show()
+                    }else {
+                        Toast.makeText(applicationContext, "Session Expired, please login again", Toast.LENGTH_SHORT).show()
+                        authState.clearLoginState()
+                        startActivity(Intent(applicationContext, LoginActivity::class.java))
+                    }
                 }
                 EventStatus.EMPTY -> TODO()
                 EventStatus.CACHE_DATA -> TODO()

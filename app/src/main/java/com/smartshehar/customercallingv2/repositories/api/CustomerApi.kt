@@ -14,5 +14,5 @@ interface CustomerApi {
     @POST("customers")
     suspend fun createCustomer(@Body createCustomerRq: CreateCustomerRq) : Response<SuccessRs<Customer>>
     @GET("customers")
-    suspend fun getCustomers(): Response<SuccessRs<List<Customer>>>
+    suspend fun getCustomers(): Result<SuccessRs<List<Customer>>>
 }

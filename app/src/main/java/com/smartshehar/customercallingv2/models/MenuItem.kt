@@ -10,7 +10,7 @@ import lombok.*
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-class MenuItem : java.io.Serializable{
+class MenuItem : java.io.Serializable {
 
     @PrimaryKey(autoGenerate = true)
     var itemId: Long = 0
@@ -18,8 +18,9 @@ class MenuItem : java.io.Serializable{
     var itemName: String = ""
     var description: String = ""
     var shortName: String = ""
-    var updatedAt: Long = 0
+    var updatedAt: String = ""
     var price: Double = 0.0
     var category: String = ""
-
+    var restaurantId: String = ""
+    var isBackedUp = false
 }

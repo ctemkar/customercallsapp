@@ -4,7 +4,9 @@ import android.app.Application
 import android.util.Log
 import com.smartshehar.customercallingv2.repositories.api.AuthApi
 import com.smartshehar.customercallingv2.repositories.api.CustomerApi
+import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
 import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
+import com.smartshehar.customercallingv2.repositories.retrofit.NetworkConnectionInterceptor
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import dagger.hilt.InstallIn
 import dagger.Module
@@ -26,7 +28,7 @@ object ApiModule {
 
 
     @Provides
-    fun provideInterceptor(authState: AuthState): OkHttpClient {
+    fun provideInterceptor(authState: AuthState, application: Application): OkHttpClient {
         Log.d(TAG, "provideInterceptor: ")
         return OkHttpClient.Builder().connectTimeout(25, TimeUnit.SECONDS)
             .readTimeout(25, TimeUnit.SECONDS).addInterceptor { chain ->
@@ -34,12 +36,14 @@ object ApiModule {
                     .addHeader("Authorization", "Bearer ${authState.getCurrentUserToken()}")
                     .build()
                 chain.proceed(newRequest)
-            }.build()
+            }
+            .addInterceptor(NetworkConnectionInterceptor(application.applicationContext))
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideAuthState(application: Application) : AuthState {
+    fun provideAuthState(application: Application): AuthState {
         return AuthState(application)
     }
 
@@ -67,5 +71,10 @@ object ApiModule {
     @Provides
     fun provideCustomerApi(retrofit: Retrofit): CustomerApi {
         return retrofit.create(CustomerApi::class.java)
+    }
+
+    @Provides
+    fun provideMenuApi(retrofit: Retrofit): MenuItemApi {
+        return retrofit.create(MenuItemApi::class.java)
     }
 }

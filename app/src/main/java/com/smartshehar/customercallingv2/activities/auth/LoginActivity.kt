@@ -31,6 +31,7 @@ class LoginActivity : AppCompatActivity() {
 
         if(authState.isUserLoggedIn()){
             startActivity(Intent(applicationContext, HomeActivity::class.java))
+            finish()
         }
 
         binding.btLogin.setOnClickListener {

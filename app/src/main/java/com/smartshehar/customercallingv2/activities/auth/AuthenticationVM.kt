@@ -69,13 +69,18 @@ class AuthenticationVM @Inject constructor(
         }
         viewModelScope.launch {
             val eventData = EventData<Owner>()
-            val result = authApi.getOwnerProfile()
-            if (result.isSuccessful) {
-                eventData.data = result.body()!!.data
-                eventData.eventStatus = EventStatus.SUCCESS
-            } else {
-                eventData.error = RequestHelper.getErrorMessage(result)
+            try {
+                val result = authApi.getOwnerProfile()
+                if (result.isSuccessful) {
+                    eventData.data = result.body()!!.data
+                    eventData.eventStatus = EventStatus.SUCCESS
+                } else {
+                    eventData.error = RequestHelper.getErrorMessage(result)
+                    eventData.eventStatus = EventStatus.ERROR
+                }
+            }catch (e:Exception){
                 eventData.eventStatus = EventStatus.ERROR
+                eventData.error = "NETWORK"
             }
             profileLiveData!!.postValue(eventData)
         }

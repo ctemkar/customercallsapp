@@ -7,6 +7,7 @@ import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.dtos.CreateCustomerRq
 import com.smartshehar.customercallingv2.repositories.api.CustomerApi
+import com.smartshehar.customercallingv2.repositories.retrofit.NetworkConnectionInterceptor.NoConnectivityException
 import com.smartshehar.customercallingv2.utils.RequestHelper
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import kotlinx.coroutines.*
@@ -57,22 +58,26 @@ class CustomerRepository @Inject constructor(
         return customerDao.getAllCustomers()
     }
 
-    suspend fun fetchApiData() : EventStatus{
+    suspend fun fetchApiData(): EventStatus {
         //Proceed to fetch API data
-        val result = customerApi.getCustomers()
-        if (result.isSuccessful) {
-            val fetchedList = result.body()?.data
+
+        customerApi.getCustomers().onSuccess {
+            val fetchedList = it.data
             if (fetchedList != null) {
                 if (fetchedList.isEmpty()) {
                     customerDao.deleteAllCustomerDetails()
                 } else {
                     customerDao.deleteCustomersWithRestaurantId(fetchedList[0].restaurantId)
                     customerDao.insertCustomers(fetchedList)
-                    return EventStatus.SUCCESS
                 }
+                return EventStatus.SUCCESS
             }
+        }.onFailure {
+            return EventStatus.ERROR
         }
+
         return EventStatus.ERROR
+
     }
 
     fun compareAndCacheData(cachedList: List<Customer>, fetchedList: List<Customer>) {
