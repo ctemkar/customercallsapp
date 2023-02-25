@@ -50,7 +50,12 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         Toast.makeText(this,customerId.toString(),Toast.LENGTH_SHORT).show()
         viewMenuItemVM.getMenuItems().observe(this) {
             when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
+                EventStatus.LOADING -> {
+                    if(it.data !=null){
+                        initializeCustomerOrderWithZeroQuantity(it.data!!)
+                        setMenuItemsToCartList(it)
+                    }
+                }
                 EventStatus.SUCCESS -> {
                     initializeCustomerOrderWithZeroQuantity(it.data!!)
                     setMenuItemsToCartList(it)

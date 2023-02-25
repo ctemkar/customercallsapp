@@ -41,6 +41,7 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
         createMenuItemRq.itemName = menuItem.itemName
         createMenuItemRq.description = menuItem.description
         createMenuItemRq.price = menuItem.price
+        createMenuItemRq.category = menuItem.category
         return createMenuItemRq
     }
 
@@ -81,9 +82,9 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
     }
 
     suspend fun getMenuItemsFromApi(): EventData<List<MenuItem>> {
-        val response = menuItemApi.getMenuItems()
         val eventData = EventData<List<MenuItem>>()
         try {
+            val response = menuItemApi.getMenuItems()
             if (response.isSuccessful) {
                 if (response.body() != null) {
                     if (response.body()!!.data != null) {
@@ -122,7 +123,7 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
         //Observer will receive the data when there is a change in local sqlite
         //database, this will pass the data to livedata listeners
         val eventData = EventData<List<MenuItem>>()
-        eventData.eventStatus = EventStatus.LOADING
+        eventData.eventStatus = EventStatus.SUCCESS
         eventData.data = it
         menuItemsLiveData.postValue(eventData)
     }

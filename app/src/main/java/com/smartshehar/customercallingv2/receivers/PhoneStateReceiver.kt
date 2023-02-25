@@ -22,8 +22,6 @@ class PhoneStateReceiver : BroadcastReceiver() {
     private val TAG = "PhoneStateReceiver"
     var isTriggered: Boolean = false
 
-    lateinit var customerRepository: CustomerRepository
-
     override fun onReceive(context: Context, intent: Intent) {
 
         try {
@@ -43,10 +41,9 @@ class PhoneStateReceiver : BroadcastReceiver() {
                             val incomingNumber2 =
                                 intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                             if (incomingNumber2 != null) {
-                                Log.d(TAG, "onReceive: ${customerRepository}")
                                 Log.d(TAG, "onCallStateChanged: Launched worker")
                                 val db = AppLocalDatabase.getInstance(context)
-                                startPopupShowWorker(context, incomingNumber2,db.customerDao())
+                                startPopupShowWorker(context, incomingNumber,db.customerDao())
                             }
                             stateString = "Ringing"
                         }
@@ -65,7 +62,6 @@ class PhoneStateReceiver : BroadcastReceiver() {
     private fun startPopupShowWorker(context: Context, incomingNumber: String,customerDao: CustomerDao) {
         try {
             val serviceIntent = Intent(context, FloatingWindow::class.java)
-
             val customer = getCustomerDetailsByNumber(incomingNumber, customerDao)
             if (customer == null) {
                 serviceIntent.putExtra("isNewCustomer", true);
