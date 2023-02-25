@@ -8,6 +8,7 @@ import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
 import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
 import com.smartshehar.customercallingv2.repositories.retrofit.NetworkConnectionInterceptor
 import com.smartshehar.customercallingv2.utils.states.AuthState
+import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.hilt.InstallIn
 import dagger.Module
 import dagger.Provides
@@ -45,6 +46,12 @@ object ApiModule {
     @Singleton
     fun provideAuthState(application: Application): AuthState {
         return AuthState(application)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRestaurantState(application: Application): RestaurantState {
+        return RestaurantState(application)
     }
 
     @Provides

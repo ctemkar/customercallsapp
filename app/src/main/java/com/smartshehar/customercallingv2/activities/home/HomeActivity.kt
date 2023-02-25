@@ -36,10 +36,12 @@ import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItems
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.models.Owner
 import com.smartshehar.customercallingv2.models.Restaurant
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
+import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -59,6 +61,9 @@ class HomeActivity : AppCompatActivity() {
 
     @Inject
     lateinit var authState: AuthState
+
+    @Inject
+    lateinit var restaurantState: RestaurantState
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -78,14 +83,13 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, AllOrdersActivity::class.java))
         }
 
-
     }
 
     private fun loadData() {
         viewModel.getCustomersLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.EMPTY -> {
-
+                    
                 }
                 EventStatus.LOADING -> {
 
@@ -96,8 +100,10 @@ class HomeActivity : AppCompatActivity() {
                 }
                 EventStatus.ERROR -> {
                     hideSyncingView()
+                    Log.d(TAG, "loadData: ERROR")
                 }
                 EventStatus.CACHE_DATA -> {
+                    hideSyncingView()
                     showCustomerDataList(it)
                 }
             }
@@ -111,22 +117,24 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.SUCCESS -> {
                     Log.d(TAG, "loadData: ${it.data!!.ownerName}")
                     if (it.data != null) {
-                        if (it.data!!.selectedRestaurant == null) {
-                            binding.tvSelectedRestaurant.text = "No selected restaurant"
-                        } else {
-                            binding.tvSelectedRestaurant.text =
-                                it.data!!.selectedRestaurant!!.restaurantName
-                            selectedRestaurant = it.data!!.selectedRestaurant
-                        }
+                        setSelectedRestaurant(it)
                         //Set Restaurant list Items on top
                         setRestaurantListeners()
                     }
                 }
                 EventStatus.ERROR -> {
-                    if(it.error == "NETWORK"){
-                        Toast.makeText(applicationContext, "Please check your network", Toast.LENGTH_SHORT).show()
-                    }else {
-                        Toast.makeText(applicationContext, "Session Expired, please login again", Toast.LENGTH_SHORT).show()
+                    if (it.error == "NETWORK") {
+                        Toast.makeText(
+                            applicationContext,
+                            "Please check your network",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Session Expired, please login again",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         authState.clearLoginState()
                         startActivity(Intent(applicationContext, LoginActivity::class.java))
                     }
@@ -148,6 +156,17 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.EMPTY -> TODO()
                 EventStatus.CACHE_DATA -> TODO()
             }
+        }
+    }
+
+    private fun setSelectedRestaurant(it: EventData<Owner>) {
+        if (it.data!!.selectedRestaurant == null) {
+            binding.tvSelectedRestaurant.text = "No selected restaurant"
+        } else {
+            binding.tvSelectedRestaurant.text =
+                it.data!!.selectedRestaurant!!.restaurantName
+            selectedRestaurant = it.data!!.selectedRestaurant
+            restaurantState.saveCurrentRestaurantId(selectedRestaurant!!._id)
         }
     }
 
@@ -214,13 +233,22 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
                     selectedRestaurant = availableRestaurants[position]
-                    setupMenu()
+                    binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
+                    closeMenu()
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
+    }
+
+    private fun closeMenu() {
+        if (this::dialog.isInitialized) {
+            if (dialog.isShowing)
+                dialog.dismiss()
+        }
+        loadData()
     }
 
     lateinit var mAdapter: CustomerListHomeAdapter

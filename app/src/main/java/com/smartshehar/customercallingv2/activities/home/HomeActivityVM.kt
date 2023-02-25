@@ -45,11 +45,7 @@ class HomeActivityVM @Inject constructor(
             val eventData = EventData<List<Customer>>()
             try {
                 val fetchStatus = customerRepository.fetchApiData()
-                if (customersLiveData.value != null) {
-                    eventData.data = customersLiveData.value!!.data
-                    eventData.eventStatus = fetchStatus
-                    customersLiveData.postValue(eventData)
-                }
+                customerRepository.checkAndSyncBackup()
             } catch (e: java.lang.Exception) {
                 eventData.eventStatus = EventStatus.ERROR
                 eventData.error = NETWORK_ERROR
@@ -65,15 +61,15 @@ class HomeActivityVM @Inject constructor(
         viewModelScope.launch {
             val eventData = EventData<List<Restaurant>>()
             try {
-//                val response = restaurantApi.getRestaurants()
-//                if (response.isSuccessful && response.body() != null) {
-//                    eventData.eventStatus = EventStatus.SUCCESS
-//                    eventData.data = response.body()!!.data
-//                } else {
-//                    eventData.eventStatus = EventStatus.ERROR
-//                    eventData.data = response.body()!!.data
-//                }
-//                restaurantsLiveData.postValue(eventData)
+                val response = restaurantApi.getRestaurants()
+                if (response.isSuccessful && response.body() != null) {
+                    eventData.eventStatus = EventStatus.SUCCESS
+                    eventData.data = response.body()!!.data
+                } else {
+                    eventData.eventStatus = EventStatus.ERROR
+                    eventData.data = response.body()!!.data
+                }
+                restaurantsLiveData.postValue(eventData)
             } catch (e: java.lang.Exception) {
                 eventData.eventStatus = EventStatus.ERROR
             }

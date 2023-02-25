@@ -8,6 +8,7 @@ class AuthState(val app: Application) {
 
     val AUTH_DATA = "auth_data"
     val TOKEN = "token"
+
     val USER_TYPE = "user_type"
     private val TAG = "AuthState"
 
@@ -41,6 +42,8 @@ class AuthState(val app: Application) {
         editor.remove(USER_TYPE)
         editor.apply()
     }
+
+
 
 
 }

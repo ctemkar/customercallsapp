@@ -34,5 +34,6 @@ class Customer : Serializable {
     var mIsNew = true
     var dateCreated: Long = -1
     var restaurantId : String = ""
+    var isBackupUp = false
 
 }

@@ -2,15 +2,14 @@ package com.smartshehar.customercallingv2.repositories.customer
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.dtos.CreateCustomerRq
 import com.smartshehar.customercallingv2.repositories.api.CustomerApi
-import com.smartshehar.customercallingv2.repositories.retrofit.NetworkConnectionInterceptor.NoConnectivityException
-import com.smartshehar.customercallingv2.utils.RequestHelper
+import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import kotlinx.coroutines.*
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -33,25 +32,30 @@ class CustomerRepository @Inject constructor(
 
     suspend fun createCustomer(customer: Customer): EventData<Customer> =
         withContext(Dispatchers.IO) {
-            Log.d(
-                TAG,
-                "createCustomer: 1 ${customer.addressLine1} ${customer.firstName} ${customer.pincode} ${customer.contactNumber}"
-            )
-            val eventData = EventData<Customer>()
-            val insertedID = customerDao.insert(customer)
-            customer.customerId = insertedID
+            val createdId = customerDao.insert(customer)
+            customer.customerId = createdId
+            return@withContext saveCustomerToApi(customer)
+        }
+
+    private suspend fun saveCustomerToApi(customer: Customer): EventData<Customer> {
+        val eventData = EventData<Customer>()
+        try {
             val createCustomerRq = CreateCustomerRq(customer)
             val result = customerApi.createCustomer(createCustomerRq)
             if (result.isSuccessful) {
                 //Save in local also
-                Log.d(TAG, "createCustomer: ${result.code()} ${result.body()}")
+                customer.isBackupUp = true
+                customerDao.update(customer)
                 eventData.eventStatus = EventStatus.SUCCESS
-            } else {
-                eventData.eventStatus = EventStatus.ERROR
-                Log.d(TAG, "createCustomer: ${RequestHelper.getErrorMessage(result)}")
+                return eventData
             }
-            return@withContext eventData
+        } catch (e: Exception) {
+            eventData.eventStatus = EventStatus.ERROR
+            eventData.error = NETWORK_ERROR
         }
+        eventData.eventStatus = EventStatus.ERROR
+        return eventData
+    }
 
 
     fun getCustomers(): LiveData<List<Customer>> {
@@ -60,25 +64,34 @@ class CustomerRepository @Inject constructor(
 
     suspend fun fetchApiData(): EventStatus {
         //Proceed to fetch API data
-
-        customerApi.getCustomers().onSuccess {
-            val fetchedList = it.data
+        val response = customerApi.getCustomers()
+        if (response.isSuccessful) {
+            val fetchedList = response.body()!!.data
             if (fetchedList != null) {
                 if (fetchedList.isEmpty()) {
                     customerDao.deleteAllCustomerDetails()
                 } else {
-                    customerDao.deleteCustomersWithRestaurantId(fetchedList[0].restaurantId)
+                    customerDao.deleteAllSyncedCustomers()
+                    fetchedList.forEach { it.isBackupUp = true }
                     customerDao.insertCustomers(fetchedList)
                 }
                 return EventStatus.SUCCESS
             }
-        }.onFailure {
-            return EventStatus.ERROR
         }
-
         return EventStatus.ERROR
-
     }
+
+    suspend fun checkAndSyncBackup() {
+        val customers = customerDao.getAllUnSyncedCustomers()
+        for (customer in customers) {
+            val event = saveCustomerToApi(customer)
+            if (event.eventStatus == EventStatus.SUCCESS) {
+                customer.isBackupUp = true
+                customerDao.update(customer)
+            }
+        }
+    }
+
 
     fun compareAndCacheData(cachedList: List<Customer>, fetchedList: List<Customer>) {
 

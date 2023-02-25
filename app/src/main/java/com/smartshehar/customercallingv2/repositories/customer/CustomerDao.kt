@@ -12,14 +12,16 @@ import com.smartshehar.customercallingv2.models.Customer
 interface CustomerDao {
 
     @Insert
-    fun insert(customer: Customer) : Long
+    fun insert(customer: Customer): Long
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCustomers(customers: List<Customer>)
+
     @Update
     fun update(customer: Customer)
 
     @Query("select * from customer where customerId=:customerId")
-    fun getCustomerById(customerId: Long) : Customer
+    fun getCustomerById(customerId: Long): Customer
 
     @Query("select * from customer")
     fun getAllCustomers(): LiveData<List<Customer>>
@@ -27,12 +29,17 @@ interface CustomerDao {
     @Query("delete from customer where restaurantId=:restaurantId")
     fun deleteCustomersWithRestaurantId(restaurantId: String)
 
-    @Query("delete from customer")
+    @Query("delete from customer where isBackupUp=1")
     fun deleteAllCustomerDetails()
 
-    @Query("select * from customer where contactNumber=:phoneNumber")
+    @Query("select * from customer where contactNumber=:phoneNumber and isBackupUp=1")
     fun getCustomerByPhoneNumber(phoneNumber: String): Customer
 
+    @Query("select * from customer where isBackupUp=0")
+    fun getAllUnSyncedCustomers(): List<Customer>
+
+    @Query("delete from customer where isBackupUp=1")
+    fun deleteAllSyncedCustomers()
 
 
 }

@@ -15,16 +15,21 @@ interface MenuItemDao {
     //Dao for Room Database
 
     @Insert
-    fun insert(customer: MenuItem)
+    fun insert(menuItem: MenuItem) : Long
+
+    @Insert
+    fun insert(menuItems: List<MenuItem>)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(menuItem: MenuItem)
 
-    @Query("select * from menuitem")
-    fun findAllMenuItems() : LiveData<List<MenuItem>>
+    @Query("select * from menuitem where restaurantId=:restaurantId")
+    fun findAllMenuItems(restaurantId: String) : LiveData<List<MenuItem>>
 
-    @Query("select * from menuitem where isBackedUp=0")
-    fun findAllNonBackedUpMenuItems() : List<MenuItem>
+    @Query("select * from menuitem where isBackedUp=0 and restaurantId=:restaurantId")
+    fun findAllUnSyncedMenuItems(restaurantId: String) : List<MenuItem>
 
+    @Query("delete from menuitem where isBackedUp=1 and restaurantId=:restaurantId")
+    fun deleteSyncedMenuItems(restaurantId: String)
 
 }

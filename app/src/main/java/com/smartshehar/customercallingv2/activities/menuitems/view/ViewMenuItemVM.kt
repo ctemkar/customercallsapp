@@ -26,6 +26,12 @@ class ViewMenuItemVM @Inject constructor(
     }
 
     fun getMenuItems(): LiveData<EventData<List<MenuItem>>> {
+        viewModelScope.launch {
+            //Fetch local data first and sent to view
+            //Once local data is loaded, then proceed to fetch api data
+            menuItemRepository.getMenuItemsFromApi()
+        }
+
         return menuItemRepository.getAllMenuItems()
     }
 

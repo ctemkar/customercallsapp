@@ -14,7 +14,7 @@ class MenuItem : java.io.Serializable {
 
     @PrimaryKey(autoGenerate = true)
     var itemId: Long = 0
-    var createdAt: Long = System.currentTimeMillis()
+    var createdAt: String = ""
     var itemName: String = ""
     var description: String = ""
     var shortName: String = ""

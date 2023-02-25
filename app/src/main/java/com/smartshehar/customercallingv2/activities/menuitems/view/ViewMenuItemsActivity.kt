@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.MenuItemAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.add.AddMenuItemActivity
@@ -34,16 +35,12 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
         viewModel.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
-
+                    if(it.data !=null){
+                        setMenuItemsList(it)
+                    }
                 }
                 EventStatus.SUCCESS -> {
-                    menuItems = it.data!!
-                    val mAdapter = MenuItemAdapter(menuItems)
-                    binding.rViewViewMenuItems.apply {
-                        layoutManager = LinearLayoutManager(applicationContext)
-                        adapter = mAdapter
-                    }
-                    mAdapter.setOnItemClickListener(this)
+                    setMenuItemsList(it)
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
@@ -51,6 +48,16 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
             }
         }
 
+    }
+
+    private fun setMenuItemsList(it: EventData<List<MenuItem>>) {
+        menuItems = it.data!!
+        val mAdapter = MenuItemAdapter(menuItems)
+        binding.rViewViewMenuItems.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = mAdapter
+        }
+        mAdapter.setOnItemClickListener(this)
     }
 
     private fun setListeners() {
