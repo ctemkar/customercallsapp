@@ -32,20 +32,17 @@ class PhoneStateReceiver : BroadcastReceiver() {
                 context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
             val listener = object : PhoneStateListener() {
                 override fun onCallStateChanged(state: Int, incomingNumber: String) {
-                    var stateString = "N/A"
                     when (state) {
-                        TelephonyManager.CALL_STATE_IDLE -> stateString = "Idle"
-                        TelephonyManager.CALL_STATE_OFFHOOK -> stateString = "Off Hook"
+                        TelephonyManager.CALL_STATE_IDLE -> {}
+                        TelephonyManager.CALL_STATE_OFFHOOK -> {}
                         TelephonyManager.CALL_STATE_RINGING -> {
                             isTriggered = true
                             val incomingNumber2 =
                                 intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                             if (incomingNumber2 != null) {
-                                Log.d(TAG, "onCallStateChanged: Launched worker")
                                 val db = AppLocalDatabase.getInstance(context)
-                                startPopupShowWorker(context, incomingNumber,db.customerDao())
+                                startPopupShowWorker(context, incomingNumber, db.customerDao())
                             }
-                            stateString = "Ringing"
                         }
 
                     }
@@ -58,8 +55,11 @@ class PhoneStateReceiver : BroadcastReceiver() {
     }
 
 
-
-    private fun startPopupShowWorker(context: Context, incomingNumber: String,customerDao: CustomerDao) {
+    private fun startPopupShowWorker(
+        context: Context,
+        incomingNumber: String,
+        customerDao: CustomerDao
+    ) {
         try {
             val serviceIntent = Intent(context, FloatingWindow::class.java)
             val customer = getCustomerDetailsByNumber(incomingNumber, customerDao)
@@ -102,7 +102,10 @@ class PhoneStateReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun getCustomerDetailsByNumber(unformattedContactNumber: String, customerDao: CustomerDao): Customer {
+    private fun getCustomerDetailsByNumber(
+        unformattedContactNumber: String,
+        customerDao: CustomerDao
+    ): Customer {
         var contactNumber = unformattedContactNumber
         if (contactNumber.startsWith("+91")) {
             contactNumber = unformattedContactNumber.substring(3)
