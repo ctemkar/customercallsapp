@@ -19,8 +19,9 @@ import lombok.*
 )
 class CustomerOrder {
     @PrimaryKey(autoGenerate = true)
-    var orderId: Int = 0
+    var orderId: Long = 0
     var customerId: Long = 0
     var orderTotalAmount: Double = 0.0
     var orderDate: Long = 0
+    var isBackedUp: Boolean = false
 }

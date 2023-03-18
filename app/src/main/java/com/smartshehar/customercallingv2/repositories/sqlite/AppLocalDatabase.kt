@@ -19,7 +19,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Customer::class, MenuItem::class, CustomerOrder::class, OrderItem::class],
-    version = 28
+    version = 30
 )
 @TypeConverters(MapTypeConverter::class)
 abstract class AppLocalDatabase : RoomDatabase() {
@@ -36,6 +36,7 @@ abstract class AppLocalDatabase : RoomDatabase() {
         @Synchronized
         fun getInstance(context: Context): AppLocalDatabase {
             if (instance == null) {
+
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppLocalDatabase::class.java,

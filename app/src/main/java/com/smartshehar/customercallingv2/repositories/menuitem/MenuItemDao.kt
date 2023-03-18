@@ -17,7 +17,7 @@ interface MenuItemDao {
     @Insert
     fun insert(menuItem: MenuItem) : Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(menuItems: List<MenuItem>)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)

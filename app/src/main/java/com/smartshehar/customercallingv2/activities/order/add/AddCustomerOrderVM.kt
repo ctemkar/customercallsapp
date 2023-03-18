@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.models.OrderItem
+import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customerorder.CustomerOrderRepository
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
 import com.smartshehar.customercallingv2.utils.events.EventStatus
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class AddCustomerOrderVM @Inject constructor(
     private val customerOrderRepository: CustomerOrderRepository,
     private val menuItemRepository: MenuItemRepository,
+    private val customerRepository: CustomerRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -28,23 +30,13 @@ class AddCustomerOrderVM @Inject constructor(
         orderItems: ArrayList<OrderItem>
     ): LiveData<EventData<CustomerOrder>> {
         val customerOrder = CustomerOrder()
-        //customerOrder.orderId = UUID.randomUUID().toString()
         customerOrder.customerId = customerId
         customerOrder.orderDate = System.currentTimeMillis()
-        var totalAmount = 0.0
-        for (order in orderItems) {
-            if (order.quantity == 0) {
-                orderItems.remove(order)
-                break
-            }
-            totalAmount += order.quantity * order.price
-        }
-        customerOrder.orderTotalAmount = totalAmount
-
         viewModelScope.launch {
             val eventData = EventData<CustomerOrder>()
             eventData.eventStatus = EventStatus.SUCCESS
-            eventData.data = customerOrderRepository.saveCustomerOrderV2(customerOrder, orderItems)
+            val customer = customerRepository.getCustomerDetailsById(customerId)
+            eventData.data = customerOrderRepository.saveCustomerOrderV2(customerOrder, orderItems, customer)
             addCustomerOrderLiveData.value = eventData
         }
         return addCustomerOrderLiveData

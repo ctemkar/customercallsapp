@@ -5,19 +5,22 @@ import android.content.Context.MODE_PRIVATE
 import android.util.Log
 import com.amaze.emanage.events.EventData
 import com.google.gson.Gson
-import com.smartshehar.customercallingv2.models.CustomerOrder
-import com.smartshehar.customercallingv2.utils.Constants.Companion.PREF_KEY_CUSTOMER_ORDERS
-import com.smartshehar.customercallingv2.utils.Constants.Companion.PREF_ORDERS_STORE
-import javax.inject.Inject
-
 import com.google.gson.reflect.TypeToken
+import com.smartshehar.customercallingv2.models.Customer
+import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.models.OrderItem
+import com.smartshehar.customercallingv2.models.dtos.CreateCustomerOrderRq
+import com.smartshehar.customercallingv2.repositories.api.CustomerOrderApi
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
+import com.smartshehar.customercallingv2.utils.Constants.Companion.PREF_KEY_CUSTOMER_ORDERS
+import com.smartshehar.customercallingv2.utils.Constants.Companion.PREF_ORDERS_STORE
+import com.smartshehar.customercallingv2.utils.RequestHelper
 import com.smartshehar.customercallingv2.utils.events.EventStatus
+import org.json.JSONObject
 import java.lang.reflect.Type
 import java.util.*
-import kotlin.collections.ArrayList
+import javax.inject.Inject
 
 /**
  * Repository layer for customer orders
@@ -28,6 +31,7 @@ import kotlin.collections.ArrayList
 class CustomerOrderRepository @Inject constructor(
     private val application: Application,
     private val customerOrderDao: CustomerOrderDao,
+    private val customerOrderApi: CustomerOrderApi
 ) {
 
     private val TAG = "CustomerOrderRepository"
@@ -57,48 +61,63 @@ class CustomerOrderRepository @Inject constructor(
 
     suspend fun saveCustomerOrderV2(
         customerOrder: CustomerOrder,
-        orderItems: List<OrderItem>
+        orderItems: List<OrderItem>,
+        customer: Customer
     ): CustomerOrder {
-        val id = customerOrderDao.insert(customerOrder)
-        orderItems.forEach {
-            it.parentOrderId = id
-            Log.d(TAG, "saveCustomerOrderV2: ${id}")
+        val totalAmount = 0.0
+        val filteredOrderItems = orderItems.filter {
+            it.quantity != 0
         }
-        val orderItems1 = customerOrderDao.insertOrderItems(orderItems)
-        for (orderItem in orderItems1) {
-            Log.d(TAG, "saveCustomerOrderV2: Inserted ID ${orderItem}")
+        customerOrder.orderTotalAmount = totalAmount
+
+        val savedParentOrderId = customerOrderDao.insert(customerOrder)
+
+        filteredOrderItems.forEach {
+            //Map the parent order to child items ie. Cart items
+            it.parentOrderId = savedParentOrderId
+        }
+        customerOrderDao.insertOrderItems(filteredOrderItems)
+        customerOrder.orderId = savedParentOrderId
+        //Proceed to push into api
+        if (customer._id.isNotEmpty()) {
+            saveCustomerOrderToApi(createCustomerOrderDto(customer._id, filteredOrderItems,savedParentOrderId))
         }
         return customerOrder
+    }
+
+
+    private suspend fun saveCustomerOrderToApi(createCustomerOrderRq: CreateCustomerOrderRq) {
+        val gson = Gson()
+        val json = gson.toJson(createCustomerOrderRq)
+        Log.d(TAG, "saveCustomerOrderToApi: $json")
+        val result = customerOrderApi.saveCustomerOrder(createCustomerOrderRq)
+        if (result.isSuccessful) {
+            Log.d(TAG, "saveCustomerOrderToApi: ${result.body()!!.status}")
+        } else {
+            Log.d(TAG, "saveCustomerOrderToApi: ERROR ${RequestHelper.getErrorMessage(result)}")
+        }
+
+    }
+
+    private fun createCustomerOrderDto(
+        customerId: String,
+        filteredOrderItems: List<OrderItem>,
+        savedParentOrderId: Long
+    ): CreateCustomerOrderRq {
+        val createCustomerOrderRq = CreateCustomerOrderRq()
+        createCustomerOrderRq.customerId = customerId
+        createCustomerOrderRq.orderItems = filteredOrderItems as ArrayList<OrderItem>
+        createCustomerOrderRq.orderId = savedParentOrderId
+        return createCustomerOrderRq
     }
 
     suspend fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder {
         return customerOrderDao.getCustomerOrders(customerId)
     }
 
-    suspend fun getAllCustomersOrders() : List<CustomerOrderWithCustomer>{
+    suspend fun getAllCustomersOrders(): List<CustomerOrderWithCustomer> {
         return customerOrderDao.getAllCustomerOrders()
     }
-
-//    suspend fun getCustomerOrders(customerId: Long): LinkedList<CustomerOrder> {
-//        val prefs = application.getSharedPreferences(PREF_ORDERS_STORE, MODE_PRIVATE)
-//        var savedList = LinkedList<CustomerOrder>()
-//        val gson = Gson()
-//        val prefKey =
-//            PREF_KEY_CUSTOMER_ORDERS + customerId //Making the key unique for all customers
-//
-//        Log.d(TAG, "getCustomerOrders: $prefKey")
-//        //If orders are already present, then load the list into savedList variable
-//        if (prefs.contains(prefKey)) {
-//            val json = prefs.getString(prefKey, "")
-//            if (!json.isNullOrBlank()) {
-//                savedList = gson.fromJson(json, getCustomerOrderListType())
-//            }
-//        } else {
-//            Log.d(TAG, "getCustomerOrders: Not con")
-//        }
-//        return savedList
-//    }
-
 
     suspend fun getItemOrderedCountByCustomerAndItems(
         menuItemsId: List<OrderItem>,
@@ -108,11 +127,9 @@ class CustomerOrderRepository @Inject constructor(
         menuItemsId.forEach {
             it.totalOrders =
                 customerOrderDao.getOrderItemCountFromOrder(
-                    it.menuItemId,
+                    it.localMenuId,
                     customerId
                 )
-            Log.d(TAG, "getItemOrderedCountByCustomerAndItems: ${it.totalOrders}")
-
         }
         return menuItemsId
     }
@@ -120,15 +137,9 @@ class CustomerOrderRepository @Inject constructor(
     suspend fun getOrderDetailsV2(parentOrderId: Long): List<OrderItem>? {
         val result = customerOrderDao.getOrderItems(parentOrderId)
         if (result.isEmpty()) {
-            Log.d(TAG, "getOrderDetailsV2: Null value $parentOrderId")
             return ArrayList()
         }
-        result.forEach {
-            Log.d(
-                TAG,
-                "getOrderDetailsV2: ${it.orderItemId} Parent ID : ${it.parentOrderId} ${it.itemName} ${it.quantity}"
-            )
-        }
+
         return result
     }
 

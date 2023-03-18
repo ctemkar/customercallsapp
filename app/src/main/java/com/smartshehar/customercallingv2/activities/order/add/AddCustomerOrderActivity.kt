@@ -80,7 +80,8 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
                 itemName = it.itemName
                 price = it.price
                 category = it.category
-                menuItemId = it.itemId
+                menuItemId = it._id
+                localMenuId = it.itemId
             }
             orderItems.add(orderItem)
         }

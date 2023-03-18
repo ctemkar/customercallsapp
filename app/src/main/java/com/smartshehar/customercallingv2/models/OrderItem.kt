@@ -32,8 +32,10 @@ class OrderItem {
     var itemName: String = ""
     var price: Double = 0.0
     var category: String = ""
-    var menuItemId: Long = 0
+    var menuItemId: String = ""
+    var localMenuId: Long = 0
     var totalOrders = 0
+    var isBackedUp : Boolean = false
 
 
 }

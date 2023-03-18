@@ -2,10 +2,7 @@ package com.smartshehar.customercallingv2.di
 
 import android.app.Application
 import android.util.Log
-import com.smartshehar.customercallingv2.repositories.api.AuthApi
-import com.smartshehar.customercallingv2.repositories.api.CustomerApi
-import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
-import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
+import com.smartshehar.customercallingv2.repositories.api.*
 import com.smartshehar.customercallingv2.repositories.retrofit.NetworkConnectionInterceptor
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import com.smartshehar.customercallingv2.utils.states.RestaurantState
@@ -83,5 +80,10 @@ object ApiModule {
     @Provides
     fun provideMenuApi(retrofit: Retrofit): MenuItemApi {
         return retrofit.create(MenuItemApi::class.java)
+    }
+
+    @Provides
+    fun provideCustomerOrderApi(retrofit: Retrofit): CustomerOrderApi {
+        return retrofit.create(CustomerOrderApi::class.java)
     }
 }

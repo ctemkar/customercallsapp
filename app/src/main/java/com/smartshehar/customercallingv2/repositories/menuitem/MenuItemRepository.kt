@@ -13,7 +13,12 @@ import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
 import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import javax.inject.Inject
 
-
+/**
+ * Repository layer for menu items
+ * Manages customer orders and responsible for data supply from sqlite db and api
+ * Constructors will be injected by dagger hilt
+ * Created by Rithik S (coderithik@gmail.com)  on 12/02/2023
+ */
 class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: MenuItemApi,private val restaurantId: String) {
 
 
@@ -42,6 +47,7 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
         createMenuItemRq.description = menuItem.description
         createMenuItemRq.price = menuItem.price
         createMenuItemRq.category = menuItem.category
+        createMenuItemRq.restaurantId = restaurantId
         return createMenuItemRq
     }
 
