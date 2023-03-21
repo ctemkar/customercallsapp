@@ -20,11 +20,11 @@ import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
+class   ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
 
     private val TAG = "ViewCustomerActivity"
     lateinit var binding: ActivityViewCustomerBinding
-    val viewModel: ViewCustomerVM by viewModels()
+    private val viewModel: ViewCustomerVM by viewModels()
     var customerId: Long = 0
     private lateinit var customerWithCustomerOrder: CustomerWithCustomerOrder
 
@@ -43,8 +43,6 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
                 .show()
             finish()
         }
-
-
 
 
         binding.btNewCustomerOrder.setOnClickListener {

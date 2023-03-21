@@ -42,7 +42,16 @@ class ViewCustomerVM @Inject constructor(
             val eventData = EventData<CustomerWithCustomerOrder>()
             eventData.eventStatus = EventStatus.SUCCESS
             eventData.data = customerOrderRepository.getCustomerOrders(customerId)
-            customerOrdersLiveData.value = eventData
+            customerOrdersLiveData.postValue(eventData)
+
+            //Proceed to sync with server
+            val customerDetails = customerRepository.getCustomerDetailsById(customerId)
+            if(customerDetails._id.isNotBlank()){
+                //Only if the customer has been synced, then only we will be having the server db id
+                //with that ID we will be saving in the servers, so checking only if the ID is present in local also
+                customerOrderRepository.fetchCustomerOrdersApiData(customerDetails._id)
+            }
+
         }
         return customerOrdersLiveData
     }

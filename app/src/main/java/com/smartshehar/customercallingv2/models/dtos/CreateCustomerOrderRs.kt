@@ -6,6 +6,7 @@ import lombok.ToString
 @ToString
 data class CreateCustomerOrderRs(
     val customerId: String = "",
-    val orderId: Long = 0,
-    val orderItems : ArrayList<CustomerOrder>
+    val localCustomerId: Long = 0,
+    val localOrderId: Long = 0,
+    val orderItems: ArrayList<CustomerOrder>
 )

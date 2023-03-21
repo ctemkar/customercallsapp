@@ -10,6 +10,7 @@ import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.models.OrderItem
 import com.smartshehar.customercallingv2.models.dtos.CreateCustomerOrderRq
+import com.smartshehar.customercallingv2.models.dtos.GetCustomerOrderRs
 import com.smartshehar.customercallingv2.repositories.api.CustomerOrderApi
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
@@ -21,6 +22,7 @@ import org.json.JSONObject
 import java.lang.reflect.Type
 import java.util.*
 import javax.inject.Inject
+import kotlin.streams.toList
 
 /**
  * Repository layer for customer orders
@@ -80,7 +82,14 @@ class CustomerOrderRepository @Inject constructor(
         customerOrder.orderId = savedParentOrderId
         //Proceed to push into api
         if (customer._id.isNotEmpty()) {
-            saveCustomerOrderToApi(createCustomerOrderDto(customer._id, filteredOrderItems,savedParentOrderId))
+            saveCustomerOrderToApi(
+                createCustomerOrderDto(
+                    customer._id,
+                    filteredOrderItems,
+                    savedParentOrderId,
+                    customer.customerId
+                )
+            )
         }
         return customerOrder
     }
@@ -102,17 +111,51 @@ class CustomerOrderRepository @Inject constructor(
     private fun createCustomerOrderDto(
         customerId: String,
         filteredOrderItems: List<OrderItem>,
-        savedParentOrderId: Long
+        savedParentOrderId: Long,
+        localCustomerId: Long
     ): CreateCustomerOrderRq {
         val createCustomerOrderRq = CreateCustomerOrderRq()
         createCustomerOrderRq.customerId = customerId
         createCustomerOrderRq.orderItems = filteredOrderItems as ArrayList<OrderItem>
-        createCustomerOrderRq.orderId = savedParentOrderId
+        createCustomerOrderRq.localOrderId = savedParentOrderId
+        createCustomerOrderRq.localCustomerId = localCustomerId
         return createCustomerOrderRq
     }
 
     suspend fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder {
         return customerOrderDao.getCustomerOrders(customerId)
+    }
+
+
+    suspend fun fetchCustomerOrdersApiData(apiCustomerId: String): EventStatus {
+        //Proceed to fetch API data
+        val response = customerOrderApi.getCustomerOrders(apiCustomerId)
+        if (response.isSuccessful) {
+            val fetchedList = response.body()!!.data
+            if (fetchedList != null) {
+                if (fetchedList.isNotEmpty()) {
+                    customerOrderDao.deleteAllSyncedCustomerOrders(fetchedList[0].customerId)
+                    val customerOrdersConverted: List<CustomerOrder> =
+                        getOrderItemsFromResponse(fetchedList as ArrayList<GetCustomerOrderRs>)
+                    customerOrdersConverted.forEach { it.isBackedUp = true; it.orderId = 0 }
+                    customerOrderDao.insertCustomerOrders(customerOrdersConverted)
+                    return EventStatus.SUCCESS
+                }
+            }
+        }
+        return EventStatus.ERROR
+    }
+
+    private fun getOrderItemsFromResponse(fetchedList: ArrayList<GetCustomerOrderRs>): List<CustomerOrder> {
+        val responseCustomerOrderList: List<CustomerOrder> =
+            fetchedList.stream().map { CustomerOrder.fromCustomerOrderResponse(it) }.toList()
+        Log.d(TAG, "getOrderItemsFromResponse: ${responseCustomerOrderList.size}")
+        return responseCustomerOrderList
+    }
+
+
+    suspend fun checkAndSyncBackup() {
+
     }
 
     suspend fun getAllCustomersOrders(): List<CustomerOrderWithCustomer> {

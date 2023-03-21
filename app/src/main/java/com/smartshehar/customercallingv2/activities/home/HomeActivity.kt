@@ -2,7 +2,6 @@ package com.smartshehar.customercallingv2.activities.home
 
 import android.Manifest.permission.*
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,11 +11,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -43,7 +42,9 @@ import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 
 @AndroidEntryPoint
