@@ -105,7 +105,6 @@ class CustomerOrderRepository @Inject constructor(
         } else {
             Log.d(TAG, "saveCustomerOrderToApi: ERROR ${RequestHelper.getErrorMessage(result)}")
         }
-
     }
 
     private fun createCustomerOrderDto(
@@ -127,17 +126,17 @@ class CustomerOrderRepository @Inject constructor(
     }
 
 
-    suspend fun fetchCustomerOrdersApiData(apiCustomerId: String): EventStatus {
+    suspend fun fetchCustomerOrdersApiData(apiCustomerId: String,localCustomerId: Long): EventStatus {
         //Proceed to fetch API data
         val response = customerOrderApi.getCustomerOrders(apiCustomerId)
         if (response.isSuccessful) {
             val fetchedList = response.body()!!.data
             if (fetchedList != null) {
                 if (fetchedList.isNotEmpty()) {
-                    customerOrderDao.deleteAllSyncedCustomerOrders(fetchedList[0].customerId)
+                    customerOrderDao.deleteAllSyncedCustomerOrders(localCustomerId)
                     val customerOrdersConverted: List<CustomerOrder> =
                         getOrderItemsFromResponse(fetchedList as ArrayList<GetCustomerOrderRs>)
-                    customerOrdersConverted.forEach { it.isBackedUp = true; it.orderId = 0 }
+                    customerOrdersConverted.forEach { it.isBackedUp = true;}
                     customerOrderDao.insertCustomerOrders(customerOrdersConverted)
                     return EventStatus.SUCCESS
                 }

@@ -35,7 +35,7 @@ class CustomerOrder {
             customerOrder.serverCustomerId = customerOrderRs.customerId
             customerOrder.customerId = customerOrderRs.localCustomerId
             customerOrder.orderTotalAmount = customerOrderRs.orderTotalAmount
-
+            customerOrder.orderId = customerOrderRs.localOrderId
             return customerOrder
         }
     }

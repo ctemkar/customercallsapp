@@ -43,6 +43,6 @@ interface CustomerOrderDao {
     fun getAllCustomerOrders(): List<CustomerOrderWithCustomer>
 
     @Query("delete from customerorder where customerId=:customerId and isBackedUp=1")
-    fun deleteAllSyncedCustomerOrders(customerId: String)
+    fun deleteAllSyncedCustomerOrders(customerId: Long)
 
 }

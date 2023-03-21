@@ -49,7 +49,7 @@ class ViewCustomerVM @Inject constructor(
             if(customerDetails._id.isNotBlank()){
                 //Only if the customer has been synced, then only we will be having the server db id
                 //with that ID we will be saving in the servers, so checking only if the ID is present in local also
-                customerOrderRepository.fetchCustomerOrdersApiData(customerDetails._id)
+                customerOrderRepository.fetchCustomerOrdersApiData(customerDetails._id,customerId)
             }
 
         }
