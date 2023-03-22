@@ -25,7 +25,9 @@ class OrderHistoryAdapter(private val ordersList: List<CustomerOrder>) :
         with(holder.binding) {
 
             root.setOnClickListener {
-                listener?.onItemClick(position, ordersList[position].orderId.toLong())
+                listener?.onItemClick(
+                    customerOrder = ordersList[position]
+                )
             }
 
             with(ordersList[position]) {
@@ -39,7 +41,7 @@ class OrderHistoryAdapter(private val ordersList: List<CustomerOrder>) :
     var listener: OnItemClickListener? = null
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int, orderId: Long)
+        fun onItemClick(customerOrder: CustomerOrder)
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {

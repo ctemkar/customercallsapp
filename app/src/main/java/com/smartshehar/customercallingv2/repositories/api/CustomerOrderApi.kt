@@ -1,10 +1,7 @@
 package com.smartshehar.customercallingv2.repositories.api
 
 import com.smartshehar.customercallingv2.models.CustomerOrder
-import com.smartshehar.customercallingv2.models.dtos.CreateCustomerOrderRq
-import com.smartshehar.customercallingv2.models.dtos.CreateCustomerOrderRs
-import com.smartshehar.customercallingv2.models.dtos.GetCustomerOrderRs
-import com.smartshehar.customercallingv2.models.dtos.SuccessRs
+import com.smartshehar.customercallingv2.models.dtos.*
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -21,6 +18,12 @@ interface CustomerOrderApi {
 
     @Headers("Accept: application/json")
     @GET("/restaurants/orders/{customerId}")
-    suspend fun getCustomerOrders(@Path("customerId") apiCustomerId: String): Response<SuccessRs<List<GetCustomerOrderRs>>>
+    suspend fun getCustomerOrders(@Path("customerId") serverCustomerId: String): Response<SuccessRs<List<GetCustomerOrderRs>>>
+
+    @GET("/restaurants/orders/customers/{customerId}/orderdetails/{orderId}")
+    suspend fun getOrderItemsFromCustomerOrder(
+        @Path("customerId") serverCustomerId: String,
+        @Path("orderId") orderId: String
+    ): Response<SuccessRs<GetOrderItemsRs>>
 
 }

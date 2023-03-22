@@ -18,7 +18,7 @@ import lombok.*
         childColumns = arrayOf("customerId")
     )]
 )
-class CustomerOrder {
+class CustomerOrder : java.io.Serializable {
     @PrimaryKey(autoGenerate = true)
     var orderId: Long = 0
     var customerId: Long = 0
@@ -27,11 +27,13 @@ class CustomerOrder {
     var orderDate: Long = 0
     var isBackedUp: Boolean = false
 
+    var serverOrderId : String = ""
     var serverCustomerId: String = ""
 
     companion object {
         fun fromCustomerOrderResponse(customerOrderRs: GetCustomerOrderRs): CustomerOrder {
             val customerOrder = CustomerOrder()
+            customerOrder.serverOrderId = customerOrderRs._id
             customerOrder.serverCustomerId = customerOrderRs.customerId
             customerOrder.customerId = customerOrderRs.localCustomerId
             customerOrder.orderTotalAmount = customerOrderRs.orderTotalAmount

@@ -36,7 +36,7 @@ class AddCustomerOrderVM @Inject constructor(
             val eventData = EventData<CustomerOrder>()
             eventData.eventStatus = EventStatus.SUCCESS
             val customer = customerRepository.getCustomerDetailsById(customerId)
-            eventData.data = customerOrderRepository.saveCustomerOrderV2(customerOrder, orderItems, customer)
+            eventData.data = customerOrderRepository.saveCustomerOrderToLocalAndApi(customerOrder, orderItems, customer)
             addCustomerOrderLiveData.value = eventData
         }
         return addCustomerOrderLiveData

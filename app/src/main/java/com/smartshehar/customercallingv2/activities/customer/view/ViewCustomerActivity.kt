@@ -14,13 +14,14 @@ import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
 import com.smartshehar.customercallingv2.activities.order.add.AddCustomerOrderActivity
 import com.smartshehar.customercallingv2.activities.order.vieworderdetails.ViewOrderDetailsActivity
 import com.smartshehar.customercallingv2.databinding.ActivityViewCustomerBinding
+import com.smartshehar.customercallingv2.models.CustomerOrder
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class   ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
+class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
 
     private val TAG = "ViewCustomerActivity"
     lateinit var binding: ActivityViewCustomerBinding
@@ -69,7 +70,7 @@ class   ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemCl
                         with(it.data) {
                             tvCustomerViewName.text = this?.firstName ?: ""
                             tvCustomerViewContact.text = this?.contactNumber
-                            tvCustomerViewStreet.text  = this?.area ?: ""
+                            tvCustomerViewStreet.text = this?.area ?: ""
                             tvCustomerViewFlatNo.text = this?.houseNo
 
                         }
@@ -86,7 +87,7 @@ class   ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemCl
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
                     customerWithCustomerOrder = it.data!!
-                    customerWithCustomerOrder.customerOrders.forEach { co->
+                    customerWithCustomerOrder.customerOrders.forEach { co ->
                         Log.d(TAG, "loadDataFromVM: ${co.customerId}n ${co.orderId}")
                     }
                     val mAdapter = OrderHistoryAdapter(customerWithCustomerOrder.customerOrders)
@@ -111,12 +112,20 @@ class   ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemCl
         }
     }
 
-    override fun onItemClick(position: Int, orderId : Long) {
+    override fun onItemClick(
+        clickedCustomerOrder: CustomerOrder
+    ) {
+
         val intent = Intent(this, ViewOrderDetailsActivity::class.java)
         intent.putExtra(Constants.INTENT_DATA_CUSTOMER_ID, customerId)
         intent.putExtra(
             Constants.INTENT_DATA_ORDER_ID,
-            orderId
+            clickedCustomerOrder.orderId
+        )
+        intent.putExtra(Constants.INTENT_DATA_SERVER_ORDER_ID, clickedCustomerOrder.serverOrderId)
+        intent.putExtra(
+            Constants.INTENT_DATA_SERVER_CUSTOMER_ID,
+            clickedCustomerOrder.serverCustomerId
         )
         startActivity(intent)
     }

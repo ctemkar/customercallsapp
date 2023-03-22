@@ -11,10 +11,12 @@ import com.smartshehar.customercallingv2.models.Owner
 import com.smartshehar.customercallingv2.models.dtos.LoginRq
 import com.smartshehar.customercallingv2.models.dtos.LoginRs
 import com.smartshehar.customercallingv2.repositories.api.AuthApi
+import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
 import com.smartshehar.customercallingv2.utils.RequestHelper
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import javax.inject.Inject
@@ -33,21 +35,25 @@ class AuthenticationVM @Inject constructor(
     private var loginLiveData: SingleLiveEvent<EventData<LoginRs>>? = null
 
     fun loginOwner(loginRq: LoginRq): SingleLiveEvent<EventData<LoginRs>> {
-        if(loginLiveData == null){
+        if (loginLiveData == null) {
             loginLiveData = SingleLiveEvent()
         }
         viewModelScope.launch {
             val eventData = EventData<LoginRs>()
-            val result = authApi.loginOwner(loginRq)
-            Log.d(TAG, "loginOwner: ${result.errorBody()}")
-            if (result.isSuccessful) {
-                eventData.data = result.body()
-                eventData.eventStatus = EventStatus.SUCCESS
-                if (result.body() != null) {
-                    authState.saveCurrentUserToken(result.body()!!.token)
+            try {
+                val result = authApi.loginOwner(loginRq)
+                if (result.isSuccessful) {
+                    eventData.data = result.body()
+                    eventData.eventStatus = EventStatus.SUCCESS
+                    if (result.body() != null) {
+                        authState.saveCurrentUserToken(result.body()!!.token)
+                    }
+                } else {
+                    eventData.error = RequestHelper.getErrorMessage(result)
+                    eventData.eventStatus = EventStatus.ERROR
                 }
-            } else {
-                eventData.error = RequestHelper.getErrorMessage(result)
+            } catch (e: Exception) {
+                eventData.error = "Connection Error!"
                 eventData.eventStatus = EventStatus.ERROR
             }
 
@@ -64,7 +70,7 @@ class AuthenticationVM @Inject constructor(
     private var profileLiveData: SingleLiveEvent<EventData<Owner>>? = null
 
     fun getProfileData(): SingleLiveEvent<EventData<Owner>> {
-        if(profileLiveData == null){
+        if (profileLiveData == null) {
             profileLiveData = SingleLiveEvent()
         }
         viewModelScope.launch {
@@ -78,7 +84,7 @@ class AuthenticationVM @Inject constructor(
                     eventData.error = RequestHelper.getErrorMessage(result)
                     eventData.eventStatus = EventStatus.ERROR
                 }
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 eventData.eventStatus = EventStatus.ERROR
                 eventData.error = "NETWORK"
             }
