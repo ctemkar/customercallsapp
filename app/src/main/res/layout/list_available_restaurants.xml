@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="5dp"
+    android:gravity="center"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_margin="6dp"
+        android:layout_width="25dp"
+        android:src="@drawable/baseline_restaurant_24"
+        android:layout_height="25dp"/>
+
+    <TextView
+        android:layout_marginStart="8dp"
+        android:id="@+id/tv_restaurantNameAvailableList"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Hello there"
+        android:textSize="17sp" />
+
+
+</LinearLayout>

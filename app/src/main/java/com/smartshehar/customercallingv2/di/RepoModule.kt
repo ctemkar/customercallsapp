@@ -1,10 +1,13 @@
 package com.smartshehar.customercallingv2.di
 
 import com.smartshehar.customercallingv2.models.MenuItem
+import com.smartshehar.customercallingv2.repositories.api.CustomerApi
+import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemDao
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
+import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,12 +18,21 @@ import dagger.hilt.components.SingletonComponent
 object RepoModule {
 
     @Provides
-    fun getCustomerRepo(customerDao: CustomerDao) : CustomerRepository {
-        return CustomerRepository(customerDao)
+    fun getCustomerRepo(customerDao: CustomerDao, customerApi: CustomerApi): CustomerRepository {
+        return CustomerRepository(customerDao, customerApi)
     }
 
     @Provides
-    fun getMenuItemRepo(menuItemDao: MenuItemDao) : MenuItemRepository {
-        return MenuItemRepository(menuItemDao)
+    fun getMenuItemRepo(
+        menuItemDao: MenuItemDao,
+        menuItemApi: MenuItemApi,
+        restaurantState: RestaurantState
+    ): MenuItemRepository {
+        return MenuItemRepository(
+            menuItemDao,
+            menuItemApi,
+            restaurantState.getCurrentRestaurantId()
+        )
     }
+
 }

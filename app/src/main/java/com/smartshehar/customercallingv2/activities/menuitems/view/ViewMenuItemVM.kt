@@ -1,15 +1,13 @@
 package com.smartshehar.customercallingv2.activities.menuitems.view
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
 import com.amaze.emanage.events.SingleLiveEvent
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,14 +26,27 @@ class ViewMenuItemVM @Inject constructor(
     }
 
     fun getMenuItems(): LiveData<EventData<List<MenuItem>>> {
+        viewModelScope.launch {
+            //Fetch local data first and sent to view
+            //Once local data is loaded, then proceed to fetch api data
+            menuItemRepository.getMenuItemsFromApi()
+        }
+
         return menuItemRepository.getAllMenuItems()
     }
 
+    fun checkPendingBackups() {
+        viewModelScope.launch {
+            menuItemRepository.checkAndSyncBackup()
+        }
+    }
+
+
     override fun onCleared() {
+        super.onCleared()
         if (menuItemRepository.getAllMenuItems().hasActiveObservers()) {
             menuItemRepository.getAllMenuItems().removeObserver(menuItemsObserver)
         }
-        super.onCleared()
     }
 
 

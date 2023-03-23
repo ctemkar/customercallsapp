@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="7dp"
+        android:text="Active Restaurant"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:id="@+id/ll_activeRestaurant"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_margin="6dp"
+            android:src="@drawable/baseline_restaurant_24" />
+
+        <TextView
+            android:id="@+id/tv_restaurantNameSelectedAlert"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="8dp"
+
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Hello there"
+            android:textSize="17sp" />
+
+        <ImageView
+            android:id="@+id/imgView_selectedAvailable"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_margin="6dp"
+            android:src="@drawable/baseline_check_24" />
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_noActiveRestaurantAlert"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:text="No active restaurant"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        style="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="7dp"
+        android:text="Owned Restaurants"
+        android:textSize="15sp" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rView_availableRestaurants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <ProgressBar
+        android:id="@+id/pgBar_availableRestaurants"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp" />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add New"
+        android:textSize="15sp" />
+
+</LinearLayout>

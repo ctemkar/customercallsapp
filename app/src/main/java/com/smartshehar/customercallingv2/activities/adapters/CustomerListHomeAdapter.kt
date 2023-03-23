@@ -3,7 +3,6 @@ package com.smartshehar.customercallingv2.activities.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.smartshehar.customercallingv2.activities.home.HomeActivity
 import com.smartshehar.customercallingv2.databinding.ListCustomerHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 
@@ -14,6 +13,10 @@ class CustomerListHomeAdapter(var customerList: List<Customer>) :
 
     class ViewHolder(val binding: ListCustomerHomeBinding) : RecyclerView.ViewHolder(binding.root)
 
+    fun updateData(customerList: List<Customer>){
+        this.customerList = customerList
+        notifyDataSetChanged()
+    }
     interface OnItemClickListener {
         fun onItemClick(position: Int)
     }
@@ -35,7 +38,7 @@ class CustomerListHomeAdapter(var customerList: List<Customer>) :
                     }
                 }
                 tvCustomerNameHomeList.text = firstName
-                tvCustomerPhoneHomeList.text = msPhoneNo
+                tvCustomerPhoneHomeList.text = contactNumber
             }
         }
     }

@@ -20,13 +20,23 @@ class AddMenuItemVM @Inject constructor(
     private val addMenuItemLiveData = SingleLiveEvent<EventData<MenuItem>>()
 
     fun addMenuItem(menuItem: MenuItem) : SingleLiveEvent<EventData<MenuItem>>{
-        menuItem.createdAt = System.currentTimeMillis()
-        menuItem.updatedAt = System.currentTimeMillis()
         viewModelScope.launch {
             val result = menuItemRepository.saveMenuItem(menuItem)
             addMenuItemLiveData.value = result
         }
         return addMenuItemLiveData
     }
+
+
+
+    fun updateMenuItem(menuItem: MenuItem) : SingleLiveEvent<EventData<MenuItem>>{
+        viewModelScope.launch {
+            val result = menuItemRepository.updateMenuItem(menuItem)
+            addMenuItemLiveData.value = result
+        }
+        return addMenuItemLiveData
+    }
+
+
 
 }

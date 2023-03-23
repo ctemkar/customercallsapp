@@ -4,5 +4,6 @@ enum class EventStatus {
     LOADING,
     SUCCESS,
     ERROR,
-    EMPTY
+    EMPTY,
+    CACHE_DATA
 }

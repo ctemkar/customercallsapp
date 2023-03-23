@@ -23,11 +23,31 @@ class MenuItemAdapter constructor(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         with(menuItemList[position]) {
             with(holder.binding) {
+                root.setOnClickListener {
+                    triggerOnItemClick(position)
+                }
                 tvMenuItemNameList.text = itemName
-                tvMenuItemPriceList.text = price.toString()
+                tvMenuItemPriceList.text = "\u20B9${price.toString()}"
                 tvMenuItemCategoryList.text = category
             }
         }
+    }
+
+    private fun triggerOnItemClick(position: Int) {
+        if(listener !=null){
+            if(position != RecyclerView.NO_POSITION){
+                listener!!.onClick(position)
+            }
+        }
+    }
+
+    interface OnItemClickListener{
+        fun onClick(position: Int)
+    }
+    var listener: OnItemClickListener? = null
+
+    fun setOnItemClickListener(listener: OnItemClickListener){
+        this.listener = listener
     }
 
     override fun getItemCount(): Int {

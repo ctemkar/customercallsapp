@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.order.vieworderdetails.ViewOrderDetailsActivity">
+
+
+    <include
+        android:id="@+id/tb"
+        layout="@layout/toolbar_back_title" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll"
+        android:orientation="vertical"
+        android:layout_below="@+id/tb">
+
+       <com.google.android.material.card.MaterialCardView
+           android:layout_width="match_parent"
+           android:layout_margin="10dp"
+           app:cardElevation="7dp"
+           android:layout_height="wrap_content">
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:orientation="vertical"
+               android:layout_margin="12dp"
+               android:layout_height="wrap_content">
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:text="Delivery Address"
+                   android:padding="8dp"
+                   android:layout_height="wrap_content"/>
+
+               <TextView
+                   android:paddingStart="8dp"
+                   android:paddingEnd="8dp"
+                   android:id="@+id/tv_custNameOrderDetail"
+                   style="@style/TextAppearance.AppCompat.Body2"
+                   android:layout_width="wrap_content"
+                   android:text="Rithik S"
+                   android:layout_height="wrap_content"/>
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:paddingStart="8dp"
+                   android:id="@+id/tv_custAddressOrderDetail"
+                   style="@style/TextAppearance.AppCompat.Body1"
+                   android:text="Vadakkettathu,\nParavoor"
+                   android:layout_height="wrap_content"/>
+
+               <LinearLayout
+                   android:layout_marginTop="10dp"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content">
+
+                   <TextView
+                       android:padding="8dp"
+                       android:layout_width="wrap_content"
+                       android:text="Contact"
+                       android:layout_height="wrap_content"/>
+                   <TextView
+                       android:layout_width="wrap_content"
+                       android:textColor="@color/purple_500"
+                       android:paddingStart="8dp"
+                       android:id="@+id/tv_custContactOrderDetail"
+                       style="@style/TextAppearance.AppCompat.Body1"
+                       android:text="+919037294350"
+                       android:layout_height="wrap_content"/>
+               </LinearLayout>
+
+           </LinearLayout>
+
+       </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="Order Items"
+            android:padding="10dp"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rView_orderDetailsItems"
+            android:layout_width="match_parent"
+            android:layout_marginTop="7dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end|center_vertical"
+            android:padding="10dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:text="Call Customer"
+                android:textAllCaps="false"
+                android:id="@+id/bt_callCustomer"
+                android:drawableEnd="@drawable/baseline_call_24"
+                android:textSize="16sp"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_height="wrap_content"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Total Amount" />
+
+
+            <TextView
+                android:id="@+id/tv_totalAmountViewOrder"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</RelativeLayout>
