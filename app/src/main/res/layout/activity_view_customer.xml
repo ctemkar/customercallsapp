@@ -13,23 +13,23 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@id/include"
+        android:layout_height="match_parent"
         android:layout_above="@id/bt_newCustomerOrder"
-        android:layout_height="match_parent">
+        android:layout_below="@id/include"
+        android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/include"
-            app:cardElevation="7dp"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            app:cardElevation="7dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_margin="8dp"
+                android:orientation="vertical"
                 android:padding="10dp">
 
 
@@ -149,15 +149,19 @@
 
         <TextView
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Recent Orders"
-            android:layout_height="wrap_content"/>
+            android:text="Recent Orders" />
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
             android:id="@+id/rView_recentOrdersCustomer"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+
+        <include layout="@layout/layout_empty" />
 
     </LinearLayout>
 
@@ -167,12 +171,12 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:gravity="center"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
+        android:gravity="center"
         android:text="New Order"
         android:textAllCaps="false"
         app:strokeColor="@color/purple_500" />

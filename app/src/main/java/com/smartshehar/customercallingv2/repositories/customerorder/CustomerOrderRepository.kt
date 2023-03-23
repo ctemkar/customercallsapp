@@ -1,6 +1,8 @@
 package com.smartshehar.customercallingv2.repositories.customerorder
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.amaze.emanage.events.EventData
 import com.google.gson.reflect.TypeToken
 import com.smartshehar.customercallingv2.models.Customer
@@ -13,7 +15,10 @@ import com.smartshehar.customercallingv2.repositories.api.CustomerOrderApi
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
+import com.smartshehar.customercallingv2.utils.RequestHelper
 import com.smartshehar.customercallingv2.utils.events.EventStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.lang.reflect.Type
 import java.util.*
 import javax.inject.Inject
@@ -99,17 +104,18 @@ class CustomerOrderRepository @Inject constructor(
         return createCustomerOrderRq
     }
 
-    suspend fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder {
+    fun getCustomerOrders(customerId: Long): LiveData<CustomerWithCustomerOrder> {
         return customerOrderDao.getCustomerOrders(customerId)
     }
 
 
-    suspend fun fetchCustomerOrdersApiData(
-        apiCustomerId: String,
+    suspend fun fetchCustomerOrdersFromServer(
+        serverCustomerId: String,
         localCustomerId: Long
     ): EventStatus {
         //Proceed to fetch API data
-        val response = customerOrderApi.getCustomerOrders(apiCustomerId)
+        Log.d(TAG, "fetchCustomerOrdersFromServer: For customer $serverCustomerId")
+        val response = customerOrderApi.getCustomerOrders(serverCustomerId)
         if (response.isSuccessful) {
             val fetchedList = response.body()!!.data
             if (fetchedList != null) {
@@ -127,10 +133,7 @@ class CustomerOrderRepository @Inject constructor(
     }
 
     private fun getCustomerOrdersFromResponse(fetchedList: ArrayList<GetCustomerOrderRs>): List<CustomerOrder> {
-        val responseCustomerOrderList: List<CustomerOrder> =
-            fetchedList.stream().map { CustomerOrder.fromCustomerOrderResponse(it) }.toList()
-        Log.d(TAG, "getOrderItemsFromResponse: ${responseCustomerOrderList.size}")
-        return responseCustomerOrderList
+        return fetchedList.stream().map { CustomerOrder.fromCustomerOrderResponse(it) }.toList()
     }
 
 
@@ -185,11 +188,14 @@ class CustomerOrderRepository @Inject constructor(
             if (response.isSuccessful) {
                 eventData.eventStatus = EventStatus.SUCCESS
                 if (response.body() != null) {
-                    val responseOrderItems : GetOrderItemsRs = response.body()!!.data!!
-                    eventData.data = OrderItem.fromOrderItemListResponse(responseOrderItems.orderItems)
+                    val responseOrderItems : List<GetOrderItemsRs.OrderItemRs> = response.body()!!.data!!
+                    eventData.data = OrderItem.fromOrderItemListResponse(responseOrderItems)
                     eventData.eventStatus = EventStatus.SUCCESS
                     return eventData
                 }
+            }else{
+                eventData.error = RequestHelper.getErrorMessage(response)
+                eventData.eventStatus = EventStatus.ERROR
             }
         } catch (e: java.lang.Exception) {
             eventData.eventStatus = EventStatus.ERROR

@@ -4,11 +4,14 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.OrderHistoryAdapter
 import com.smartshehar.customercallingv2.activities.order.add.AddCustomerOrderActivity
@@ -19,6 +22,7 @@ import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWi
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
+import org.w3c.dom.Text
 
 @AndroidEntryPoint
 class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClickListener {
@@ -86,23 +90,37 @@ class ViewCustomerActivity : AppCompatActivity(), OrderHistoryAdapter.OnItemClic
             when (it.eventStatus) {
                 EventStatus.LOADING -> TODO()
                 EventStatus.SUCCESS -> {
-                    customerWithCustomerOrder = it.data!!
-                    customerWithCustomerOrder.customerOrders.forEach { co ->
-                        Log.d(TAG, "loadDataFromVM: ${co.customerId}n ${co.orderId}")
-                    }
-                    val mAdapter = OrderHistoryAdapter(customerWithCustomerOrder.customerOrders)
-                    binding.rViewRecentOrdersCustomer.apply {
-                        layoutManager = LinearLayoutManager(applicationContext)
-                        adapter = mAdapter
-                    }
-
-                    mAdapter.setOnItemClickListener(this)
+                    showOrdersList(it)
                 }
                 EventStatus.ERROR -> TODO()
-                EventStatus.EMPTY -> TODO()
+                EventStatus.EMPTY -> {
+                    showEmptyLayout()
+                }
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
+    }
+
+    private fun showOrdersList(it: EventData<CustomerWithCustomerOrder>) {
+        hideEmptyLayout()
+        customerWithCustomerOrder = it.data!!
+        val mAdapter = OrderHistoryAdapter(customerWithCustomerOrder.customerOrders)
+        binding.rViewRecentOrdersCustomer.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = mAdapter
+        }
+        mAdapter.setOnItemClickListener(this)
+    }
+
+    private fun hideEmptyLayout() {
+        binding.rViewRecentOrdersCustomer.visibility = View.VISIBLE
+        findViewById<LinearLayout>(R.id.ll_emptyLayout).visibility = View.GONE
+    }
+    private fun showEmptyLayout() {
+        binding.rViewRecentOrdersCustomer.visibility = View.GONE
+        findViewById<LinearLayout>(R.id.ll_emptyLayout).visibility = View.VISIBLE
+        findViewById<TextView>(R.id.tv_emptyLayoutMessage).text =
+            "No orders found\n\nPlace an order below"
     }
 
     private fun setToolbar() {

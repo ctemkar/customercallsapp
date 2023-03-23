@@ -17,13 +17,13 @@ interface CustomerOrderApi {
     suspend fun saveCustomerOrder(@Body customerOrderRq: CreateCustomerOrderRq): Response<SuccessRs<CreateCustomerOrderRs>>
 
     @Headers("Accept: application/json")
-    @GET("/restaurants/orders/{customerId}")
+    @GET("/restaurants/orders/customers/{customerId}")
     suspend fun getCustomerOrders(@Path("customerId") serverCustomerId: String): Response<SuccessRs<List<GetCustomerOrderRs>>>
 
     @GET("/restaurants/orders/customers/{customerId}/orderdetails/{orderId}")
     suspend fun getOrderItemsFromCustomerOrder(
         @Path("customerId") serverCustomerId: String,
         @Path("orderId") orderId: String
-    ): Response<SuccessRs<GetOrderItemsRs>>
+    ): Response<SuccessRs<List<GetOrderItemsRs.OrderItemRs>>>
 
 }

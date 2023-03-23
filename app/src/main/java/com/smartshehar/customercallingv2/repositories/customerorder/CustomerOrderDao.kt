@@ -1,5 +1,6 @@
 package com.smartshehar.customercallingv2.repositories.customerorder
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -29,7 +30,7 @@ interface CustomerOrderDao {
 
     @Transaction
     @Query("select * from customer where customerId=:customerId")
-    fun getCustomerOrders(customerId: Long): CustomerWithCustomerOrder
+    fun getCustomerOrders(customerId: Long): LiveData<CustomerWithCustomerOrder>
 
     @Transaction
     @Query("select * from orderitem where parentOrderId=:parentOrderId")
