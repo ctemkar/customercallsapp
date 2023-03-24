@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="12dp">
 
 
             <TextView
@@ -61,10 +61,11 @@
             style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:cornerRadius="0dp"
             android:layout_gravity="center"
             android:layout_margin="10dp"
             android:id="@+id/bt_placeOrder"
-            android:layout_weight="1"
+            android:layout_weight=".8"
             android:text="Place Order"
             android:textSize="17sp" />
 

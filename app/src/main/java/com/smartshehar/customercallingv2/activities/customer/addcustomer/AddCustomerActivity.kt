@@ -33,13 +33,9 @@ class AddCustomerActivity : AppCompatActivity() {
 
 
         binding.btAddCustomer.setOnClickListener {
-            if (validCustomer()) {
-                val customer = Customer()
-                customer.firstName = binding.etNewCustomerName.text.toString()
-                customer.contactNumber = binding.etNewCustomerPhone.text.toString()
-                customer.houseNo = binding.etNewCustomerHouseFlatNo.text.toString()
-                customer.addressLine1 = binding.etNewCustomerAddressLine1.text.toString()
-                customer.pincode = binding.etNewCustomerPincode.text.toString().toLong()
+            val customer = Customer()
+            getCustomerDataFromView(customer)
+            if (validCustomer(customer)) {
                 viewModel.createNewCustomer(customer).observe(this) {
                     when (it.eventStatus) {
                         EventStatus.LOADING -> TODO()
@@ -68,6 +64,14 @@ class AddCustomerActivity : AppCompatActivity() {
 
     }
 
+    private fun getCustomerDataFromView(customer: Customer) {
+        customer.firstName = binding.etNewCustomerName.text.toString()
+        customer.contactNumber = binding.etNewCustomerPhone.text.toString()
+        customer.houseNo = binding.etNewCustomerHouseNo.text.toString()
+        customer.addressLine1 = binding.etNewCustomerAddressLine1.text.toString()
+        customer.pincode = binding.etNewCustomerPincode.text.toString().toLong()
+    }
+
 
     private fun setToolbar() {
         findViewById<TextView>(R.id.tv_tbTitle).text = "New Customer"
@@ -76,8 +80,17 @@ class AddCustomerActivity : AppCompatActivity() {
         }
     }
 
-    private fun validCustomer(): Boolean {
+    private fun validCustomer(customer: Customer): Boolean {
         //Validations need to be done
-        return true
+        if (customer.firstName.isBlank()) {
+            binding.etNewCustomerName.error = "Enter valid name"
+            binding.etNewCustomerName.requestFocus()
+        } else if (customer.contactNumber.length < 9) {
+            binding.etNewCustomerPhone.error = "Invalid Phone"
+            binding.etNewCustomerPhone.requestFocus()
+        } else {
+            return true
+        }
+        return false
     }
 }

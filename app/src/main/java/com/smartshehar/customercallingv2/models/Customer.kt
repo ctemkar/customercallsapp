@@ -20,13 +20,14 @@ class Customer : Serializable {
     var _id: String = ""
 
     @ColumnInfo(name = "first_name")
-    var firstName: String? = null
+    var firstName: String = ""
     var contactNumber = ""
     var houseNo = ""
     var totalOrders = 0
     var area: String = ""
     var addressLine1: String = ""
     var addressLine2 : String = ""
+    var directions : String = ""
     var landmark: String = ""
     var pincode : Long = 0
     var mIsIgnore = false

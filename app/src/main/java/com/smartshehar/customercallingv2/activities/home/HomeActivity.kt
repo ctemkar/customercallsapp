@@ -15,7 +15,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +30,8 @@ import com.smartshehar.customercallingv2.activities.auth.AuthenticationVM
 import com.smartshehar.customercallingv2.activities.auth.LoginActivity
 import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
+import com.smartshehar.customercallingv2.activities.home.permissions.PermissionModel
+import com.smartshehar.customercallingv2.activities.home.permissions.PermissionsAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
@@ -42,7 +43,6 @@ import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -90,7 +90,7 @@ class HomeActivity : AppCompatActivity() {
         viewModel.getCustomersLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.EMPTY -> {
-                    
+
                 }
                 EventStatus.LOADING -> {
 
@@ -178,13 +178,13 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setRestaurantListeners() {
         binding.cardSelectedRestaurant.setOnClickListener {
-            setupMenu()
+            setupSelectCurrentRestaurantPopup()
         }
     }
 
 
     lateinit var dialog: Dialog
-    private fun setupMenu() {
+    private fun setupSelectCurrentRestaurantPopup() {
         if (this::dialog.isInitialized) {
             if (dialog.isShowing)
                 dialog.dismiss()
@@ -318,68 +318,74 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, READ_PHONE_STATE) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    READ_PHONE_STATE
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_PHONE_STATE), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_PHONE_STATE), 1
-                )
-            }
-        }
+
         if (!Settings.canDrawOverlays(this)) {
             requestPermission()
         }
 
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, READ_CALL_LOG) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    READ_CALL_LOG
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_CALL_LOG), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_CALL_LOG), 1
-                )
-            }
+        val isPhoneStatePermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, READ_PHONE_STATE) ==
+                    PackageManager.PERMISSION_GRANTED
+        val isCallLogPermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, READ_CALL_LOG) ==
+                    PackageManager.PERMISSION_GRANTED
+        val isMakeCallPermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, CALL_PHONE) ==
+                    PackageManager.PERMISSION_GRANTED
+
+        if (isCallLogPermission && isMakeCallPermission && isPhoneStatePermission) {
+            //Hide permissions view
+            Toast.makeText(applicationContext,"All Permissions given", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, CALL_PHONE) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    CALL_PHONE
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(CALL_PHONE), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(CALL_PHONE), 1
-                )
-            }
+        val permissionsList = kotlin.collections.ArrayList<PermissionModel>()
+        permissionsList.add(
+            PermissionModel(
+                1, "Interrupt Incoming Call", isPhoneStatePermission,
+                READ_PHONE_STATE
+            )
+        )
+
+        permissionsList.add(
+            PermissionModel(
+                2, "Retrieve Missed Calls", isCallLogPermission,
+                READ_CALL_LOG
+            )
+        )
+
+        permissionsList.add(
+            PermissionModel(
+                3, "Make Phone Calls", isMakeCallPermission,
+                CALL_PHONE
+            )
+        )
+
+        val rViewPermissions = findViewById<RecyclerView>(R.id.rView_permissions)
+        val mAdapter = PermissionsAdapter(permissionsList)
+        rViewPermissions.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = mAdapter
         }
+        mAdapter.setOnItemClickListener(object : PermissionsAdapter.OnItemClickListener {
+            override fun onItemClick(selectedPermission: PermissionModel) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this@HomeActivity,
+                        selectedPermission.permissionString
+                    )
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this@HomeActivity,
+                        arrayOf(selectedPermission.permissionString), 1
+                    )
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this@HomeActivity,
+                        arrayOf(selectedPermission.permissionString), 1
+                    )
+                }
+            }
+        })
     }
 
     private fun showDialog(titleText: String, messageText: String) {
