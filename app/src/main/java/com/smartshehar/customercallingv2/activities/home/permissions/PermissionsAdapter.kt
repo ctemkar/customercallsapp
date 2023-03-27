@@ -31,7 +31,7 @@ class PermissionsAdapter(val permissionList: ArrayList<PermissionModel>) :
                 if (isAllowed) {
                     imgVewPermissionStatus.background =
                         imgVewPermissionStatus.resources.getDrawable(R.drawable.baseline_check_24)
-                    btPermissionAllowButton.visibility = View.GONE
+                    btPermissionAllowButton.visibility = View.INVISIBLE
                 } else {
                     imgVewPermissionStatus.background =
                         imgVewPermissionStatus.resources.getDrawable(R.drawable.baseline_priority_high_24)

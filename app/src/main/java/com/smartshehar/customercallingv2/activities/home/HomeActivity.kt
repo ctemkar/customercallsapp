@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amaze.emanage.events.EventData
+import com.google.android.material.card.MaterialCardView
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.AvailableRestaurantAdapter
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
@@ -335,7 +336,7 @@ class HomeActivity : AppCompatActivity() {
 
         if (isCallLogPermission && isMakeCallPermission && isPhoneStatePermission) {
             //Hide permissions view
-            Toast.makeText(applicationContext,"All Permissions given", Toast.LENGTH_SHORT).show()
+            findViewById<MaterialCardView>(R.id.card_permissions).visibility = View.GONE
             return
         }
 
@@ -422,22 +423,7 @@ class HomeActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             1 -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    // Permission is granted. Continue the action or workflow
-                    // in your app.
-                } else {
-                    // Explain to the user that the feature is unavailable because
-                    // the feature requires a permission that the user has denied.
-                    // At the same time, respect the user's decision. Don't link to
-                    // system settings in an effort to convince the user to change
-                    // their decision.
-                    Toast.makeText(this, "Permission Required for handle calls", Toast.LENGTH_SHORT)
-                        .show()
-                    checkPermissions()
-                }
+                checkPermissions()
                 return
             }
 
