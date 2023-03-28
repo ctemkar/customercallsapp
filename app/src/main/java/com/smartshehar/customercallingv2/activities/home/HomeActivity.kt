@@ -71,7 +71,11 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         checkPermissions()
-        loadData()
+
+        setViewModelObservers()
+
+        //Set Search change listener
+        setSearchTextChangeListener()
 
         binding.fabNewCustomer.setOnClickListener {
             startActivity(Intent(this, AddCustomerActivity::class.java))
@@ -87,22 +91,47 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun loadData() {
+    private fun setViewModelObservers() {
+        //Start loading data from server and cache
+        loadOwnedRestaurantsFromServer()
+        observeCustomerList()
+        loadProfileDataFromServer()
+        observeRestaurantUpdation()
+    }
+
+    private fun loadOwnedRestaurantsFromServer() {
+        viewModel.getRestaurantsList().observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    availableRestaurants = it.data as ArrayList<Restaurant>
+                    mRestaurantAdapter = AvailableRestaurantAdapter(availableRestaurants)
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
+            }
+        }
+    }
+
+
+    private fun observeCustomerList() {
         viewModel.getCustomersLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.EMPTY -> {
 
                 }
                 EventStatus.LOADING -> {
-
+                    showFullScreenLoadingLayout("loadCustomerDataFromCacheAndServer")
                 }
                 EventStatus.SUCCESS -> {
                     hideSyncingView()
+                    hideFullScreenLoadingLayout()
                     showCustomerDataList(it)
                 }
                 EventStatus.ERROR -> {
+                    hideFullScreenLoadingLayout()
                     hideSyncingView()
-                    Log.d(TAG, "loadData: ERROR")
                 }
                 EventStatus.CACHE_DATA -> {
                     hideSyncingView()
@@ -110,7 +139,9 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
+    private fun loadProfileDataFromServer() {
         authViewModel.getProfileData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
@@ -120,8 +151,7 @@ class HomeActivity : AppCompatActivity() {
                     Log.d(TAG, "loadData: ${it.data!!.ownerName}")
                     if (it.data != null) {
                         setSelectedRestaurant(it)
-                        //Set Restaurant list Items on top
-                        setRestaurantListeners()
+                        setRestaurantChangeListeners()
                     }
                 }
                 EventStatus.ERROR -> {
@@ -145,20 +175,6 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
-
-
-        viewModel.getRestaurantsList().observe(this) {
-            when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
-                EventStatus.SUCCESS -> {
-                    availableRestaurants = it.data as ArrayList<Restaurant>
-                    mRestaurantAdapter = AvailableRestaurantAdapter(availableRestaurants)
-                }
-                EventStatus.ERROR -> TODO()
-                EventStatus.EMPTY -> TODO()
-                EventStatus.CACHE_DATA -> TODO()
-            }
-        }
     }
 
     private fun setSelectedRestaurant(it: EventData<Owner>) {
@@ -177,12 +193,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
 
-    private fun setRestaurantListeners() {
+    private fun setRestaurantChangeListeners() {
         binding.cardSelectedRestaurant.setOnClickListener {
             setupSelectCurrentRestaurantPopup()
         }
     }
-
 
     lateinit var dialog: Dialog
     private fun setupSelectCurrentRestaurantPopup() {
@@ -190,6 +205,7 @@ class HomeActivity : AppCompatActivity() {
             if (dialog.isShowing)
                 dialog.dismiss()
         }
+
         dialog = Dialog(this@HomeActivity)
         dialog.setContentView(R.layout.alert_select_restaurants)
         if (selectedRestaurant != null) {
@@ -210,6 +226,7 @@ class HomeActivity : AppCompatActivity() {
                 AvailableRestaurantAdapter.OnItemClickListener {
                 override fun onClick(position: Int) {
                     updateSelectedRestaurant(position)
+                    dialog.dismiss()
                 }
             })
         } else {
@@ -228,34 +245,58 @@ class HomeActivity : AppCompatActivity() {
         dialog.show()
     }
 
+
+    var lastSelectedRestaurantPosition = 0
     private fun updateSelectedRestaurant(position: Int) {
         val selectedId = availableRestaurants[position]._id
-        viewModel.updateSelectedRestaurant(selectedId).observe(this) {
+        Log.d(TAG, "updateSelectedRestaurant: ")
+        viewModel.updateCurrentSelectedRestaurant(selectedId)
+        lastSelectedRestaurantPosition = position
+    }
+
+    private fun observeRestaurantUpdation() {
+        viewModel.getSelectedRestaurantUpdateLiveData().observe(this) {
             when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
-                EventStatus.SUCCESS -> {
-                    selectedRestaurant = availableRestaurants[position]
-                    binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
-                    closeMenu()
+                EventStatus.LOADING -> {
+                    showFullScreenLoadingLayout("observeRestaurantUpdatedChange")
                 }
-                EventStatus.ERROR -> TODO()
+                EventStatus.SUCCESS -> {
+                    hideFullScreenLoadingLayout()
+                    selectedRestaurant = availableRestaurants[lastSelectedRestaurantPosition]
+                    binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
+                    viewModel.refreshCustomerListData()
+                }
+                EventStatus.ERROR -> {
+                    hideFullScreenLoadingLayout()
+                    Toast.makeText(
+                        applicationContext,
+                        "Unable to update current selection",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 EventStatus.EMPTY -> TODO()
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
     }
 
-    private fun closeMenu() {
-        if (this::dialog.isInitialized) {
-            if (dialog.isShowing)
-                dialog.dismiss()
-        }
-        loadData()
+    private fun hideFullScreenLoadingLayout() {
+        Log.d(TAG, "hideFullScreenLoadingLayout: ")
+        binding.llMainContentHome.visibility = View.VISIBLE
+        findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.GONE
     }
+
+    private fun showFullScreenLoadingLayout(caller : String) {
+        Log.d(TAG, "showFullScreenLoadingLayout: $caller ")
+        binding.llMainContentHome.visibility= View.GONE
+        findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.VISIBLE
+
+    }
+
 
     lateinit var mAdapter: CustomerListHomeAdapter
     private fun showCustomerDataList(it: EventData<List<Customer>>?) {
-        if (it != null) {
+        if (it!!.data != null) {
             customersList = (it.data as ArrayList<Customer>?)!!
             mAdapter = CustomerListHomeAdapter(customersList)
 
@@ -278,8 +319,6 @@ class HomeActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             })
-
-            setSearchTextChangeListener()
         }
     }
 
@@ -409,8 +448,8 @@ class HomeActivity : AppCompatActivity() {
             startActivityForResult(intent, 10)
         } catch (e: Exception) {
             showDialog(
-                "ASD",
-                "ASd"
+                "Error",
+                "Something happened! Try again"
             )
         }
     }

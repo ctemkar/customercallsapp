@@ -34,11 +34,11 @@ class AddMenuItemActivity : AppCompatActivity() {
         }
 
         binding.btAddMenuItem.setOnClickListener {
+            menuItem.itemName = binding.etAddMenuItemName.text.toString()
+            menuItem.description = binding.etAddMenuItemDescription.text.toString()
+            menuItem.category = binding.etAddMenuItemCategory.text.toString()
             if (validateInput()) {
-                menuItem.itemName = binding.etAddMenuItemName.text.toString()
-                menuItem.description = binding.etAddMenuItemDescription.text.toString()
                 menuItem.price = binding.etAddMenuItemPrice.text.toString().toDouble()
-                menuItem.category = binding.etAddMenuItemCategory.text.toString()
                 //Listen to the status of the added item
                 if (isEditMode) {
                     viewModel.updateMenuItem(menuItem).observe(this) {
@@ -88,7 +88,16 @@ class AddMenuItemActivity : AppCompatActivity() {
     }
 
     private fun validateInput(): Boolean {
-
-        return true
+        val price = binding.etAddMenuItemPrice.text.toString()
+        if(menuItem.itemName.isEmpty()){
+            binding.etAddMenuItemName.error = "Name cannot be empty"
+            binding.etAddMenuItemName.requestFocus()
+        }else if(price.isBlank()){
+            binding.etAddMenuItemPrice.error = "Invalid price"
+            binding.etAddMenuItemPrice.requestFocus()
+        }else{
+            return true
+        }
+        return false
     }
 }

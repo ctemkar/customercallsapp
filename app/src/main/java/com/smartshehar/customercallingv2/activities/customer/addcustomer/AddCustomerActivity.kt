@@ -33,8 +33,7 @@ class AddCustomerActivity : AppCompatActivity() {
 
 
         binding.btAddCustomer.setOnClickListener {
-            val customer = Customer()
-            getCustomerDataFromView(customer)
+            val customer = getCustomerDataFromView()
             if (validCustomer(customer)) {
                 viewModel.createNewCustomer(customer).observe(this) {
                     when (it.eventStatus) {
@@ -64,12 +63,15 @@ class AddCustomerActivity : AppCompatActivity() {
 
     }
 
-    private fun getCustomerDataFromView(customer: Customer) {
+    private fun getCustomerDataFromView(): Customer {
+        val customer = Customer()
         customer.firstName = binding.etNewCustomerName.text.toString()
         customer.contactNumber = binding.etNewCustomerPhone.text.toString()
         customer.houseNo = binding.etNewCustomerHouseNo.text.toString()
         customer.addressLine1 = binding.etNewCustomerAddressLine1.text.toString()
-        customer.pincode = binding.etNewCustomerPincode.text.toString().toLong()
+        customer.pincode =
+            binding.etNewCustomerPincode.text.toString().ifEmpty { 0L } as Long
+        return customer;
     }
 
 

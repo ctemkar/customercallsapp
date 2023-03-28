@@ -54,6 +54,7 @@ class CustomerRepository @Inject constructor(
             eventData.error = NETWORK_ERROR
         }
         eventData.eventStatus = EventStatus.ERROR
+        eventData.error = "Unable to save"
         return eventData
     }
 

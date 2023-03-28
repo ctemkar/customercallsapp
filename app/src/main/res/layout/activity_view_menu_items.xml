@@ -18,6 +18,9 @@
         android:id="@+id/rView_viewMenuItems"
         android:layout_below="@id/include" />
 
+    <include
+        layout="@layout/layout_empty"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="59dp"
         android:layout_height="53dp"

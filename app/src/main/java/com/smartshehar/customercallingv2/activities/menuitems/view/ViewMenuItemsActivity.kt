@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,6 +54,12 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
 
     private fun setMenuItemsList(it: EventData<List<MenuItem>>) {
         menuItems = it.data!!
+        if(menuItems.isEmpty()){
+            findViewById<LinearLayout>(R.id.ll_emptyLayout).visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_emptyLayoutMessage).text = "No menu items added"
+            binding.rViewViewMenuItems.visibility = View.GONE
+            return
+        }
         val mAdapter = MenuItemAdapter(menuItems)
         binding.rViewViewMenuItems.apply {
             layoutManager = LinearLayoutManager(applicationContext)
