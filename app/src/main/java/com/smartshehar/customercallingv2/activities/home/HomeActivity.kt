@@ -2,6 +2,7 @@ package com.smartshehar.customercallingv2.activities.home
 
 import android.Manifest.permission.*
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -23,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amaze.emanage.events.EventData
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.AvailableRestaurantAdapter
@@ -35,6 +37,7 @@ import com.smartshehar.customercallingv2.activities.home.permissions.PermissionM
 import com.smartshehar.customercallingv2.activities.home.permissions.PermissionsAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
+import com.smartshehar.customercallingv2.activities.restaurants.add.AddRestaurantActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.Owner
@@ -99,6 +102,10 @@ class HomeActivity : AppCompatActivity() {
         observeRestaurantUpdation()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadOwnedRestaurantsFromServer()
+    }
     private fun loadOwnedRestaurantsFromServer() {
         viewModel.getRestaurantsList().observe(this) {
             when (it.eventStatus) {
@@ -233,15 +240,12 @@ class HomeActivity : AppCompatActivity() {
             dialog.findViewById<ProgressBar>(R.id.pgBar_availableRestaurants).visibility = View.GONE
         }
 
-        // val dialogButton: Button = dialog.findViewById(com.smartshehar.customercallingv2.R.id.dialogButtonOK) as Button
-        // if button is clicked, close the custom dialog
-        // if button is clicked, close the custom dialog
-//        dialogButton.setOnClickListener(object : DialogInterface.OnClickListener() {
-//            fun onClick(v: View?) {
-//                dialog.dismiss()
-//                Toast.makeText(applicationContext, "Dismissed..!!", Toast.LENGTH_SHORT).show()
-//            }
-//        })
+        val addNewRestaurantButton: MaterialButton =
+            dialog.findViewById(R.id.bt_addNewRestaurantAlert)
+        addNewRestaurantButton.setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(applicationContext,AddRestaurantActivity::class.java))
+        }
         dialog.show()
     }
 
@@ -286,9 +290,9 @@ class HomeActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.GONE
     }
 
-    private fun showFullScreenLoadingLayout(caller : String) {
+    private fun showFullScreenLoadingLayout(caller: String) {
         Log.d(TAG, "showFullScreenLoadingLayout: $caller ")
-        binding.llMainContentHome.visibility= View.GONE
+        binding.llMainContentHome.visibility = View.GONE
         findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.VISIBLE
 
     }

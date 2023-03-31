@@ -35,6 +35,7 @@ class AddCustomerActivity : AppCompatActivity() {
         binding.btAddCustomer.setOnClickListener {
             val customer = getCustomerDataFromView()
             if (validCustomer(customer)) {
+                customer.pincode = binding.etNewCustomerPincode.text.toString().toLong()
                 viewModel.createNewCustomer(customer).observe(this) {
                     when (it.eventStatus) {
                         EventStatus.LOADING -> TODO()
@@ -69,8 +70,6 @@ class AddCustomerActivity : AppCompatActivity() {
         customer.contactNumber = binding.etNewCustomerPhone.text.toString()
         customer.houseNo = binding.etNewCustomerHouseNo.text.toString()
         customer.addressLine1 = binding.etNewCustomerAddressLine1.text.toString()
-        customer.pincode =
-            binding.etNewCustomerPincode.text.toString().ifEmpty { 0L } as Long
         return customer;
     }
 
@@ -83,6 +82,7 @@ class AddCustomerActivity : AppCompatActivity() {
     }
 
     private fun validCustomer(customer: Customer): Boolean {
+        val pincode = binding.etNewCustomerPincode.text.toString()
         //Validations need to be done
         if (customer.firstName.isBlank()) {
             binding.etNewCustomerName.error = "Enter valid name"
@@ -90,7 +90,10 @@ class AddCustomerActivity : AppCompatActivity() {
         } else if (customer.contactNumber.length < 9) {
             binding.etNewCustomerPhone.error = "Invalid Phone"
             binding.etNewCustomerPhone.requestFocus()
-        } else {
+        } else if(pincode.isEmpty()) {
+            binding.etNewCustomerPincode.error="Invalid Pincode"
+            binding.etNewCustomerPincode.requestFocus()
+        }else{
             return true
         }
         return false
