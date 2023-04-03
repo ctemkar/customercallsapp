@@ -33,11 +33,21 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
         setContentView(binding.root)
         setListeners()
 
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
+
+    private fun loadData() {
         viewModel.checkPendingBackups()
         viewModel.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
-                    if(it.data !=null){
+                    if (it.data != null) {
                         setMenuItemsList(it)
                     }
                 }
@@ -49,7 +59,6 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
-
     }
 
     private fun setMenuItemsList(it: EventData<List<MenuItem>>) {

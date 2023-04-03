@@ -8,10 +8,9 @@ import com.amaze.emanage.events.EventData
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.models.dtos.CreateMenuItemRq
+import com.smartshehar.customercallingv2.models.dtos.UpdateMenuItemRq
 import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
 import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
-import com.smartshehar.customercallingv2.utils.states.RestaurantState
-import javax.inject.Inject
 
 /**
  * Repository layer for menu items
@@ -19,7 +18,11 @@ import javax.inject.Inject
  * Constructors will be injected by dagger hilt
  * Created by Rithik S (coderithik@gmail.com)  on 12/02/2023
  */
-class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: MenuItemApi,private val restaurantId: String) {
+class MenuItemRepository(
+    private val menuItemDao: MenuItemDao,
+    private val menuItemApi: MenuItemApi,
+    private val restaurantId: String
+) {
 
 
     private val TAG = "MenuItemRepository"
@@ -41,20 +44,11 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
     }
 
 
-    private fun getCreateMenuRq(menuItem: MenuItem): CreateMenuItemRq {
-        val createMenuItemRq = CreateMenuItemRq()
-        createMenuItemRq.itemName = menuItem.itemName
-        createMenuItemRq.description = menuItem.description
-        createMenuItemRq.price = menuItem.price
-        createMenuItemRq.category = menuItem.category
-        createMenuItemRq.restaurantId = restaurantId
-        return createMenuItemRq
-    }
 
-    fun updateMenuItem(menuItem: MenuItem): EventData<MenuItem> {
-        menuItemDao.update(menuItem)
-        val eventData = EventData<MenuItem>()
-        eventData.eventStatus = EventStatus.SUCCESS
+
+    suspend fun updateMenuItem(menuItem: MenuItem): EventData<MenuItem> {
+        var eventData: EventData<MenuItem>
+        eventData = updateMenuItemToApi(menuItem)
         return eventData
     }
 
@@ -83,6 +77,23 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
             eventData.eventStatus = EventStatus.SUCCESS
             return eventData
         }
+        eventData.eventStatus = EventStatus.ERROR
+        return eventData
+    }
+
+    private suspend fun updateMenuItemToApi(menuItem: MenuItem): EventData<MenuItem> {
+        val eventData = EventData<MenuItem>()
+        val updateMenuItemRq = getUpdateMenuRq(menuItem)
+        val response = menuItemApi.updateMenuItem(updateMenuItemRq)
+        if (response.isSuccessful) {
+            //Need to modify if only successful
+            menuItem.isBackedUp = true
+            //If save to api is successful, then save to local db with a true flag
+            menuItemDao.update(menuItem)
+            eventData.eventStatus = EventStatus.SUCCESS
+            return eventData
+        }
+        menuItemDao.update(menuItem)
         eventData.eventStatus = EventStatus.ERROR
         return eventData
     }
@@ -140,6 +151,25 @@ class MenuItemRepository(private val menuItemDao: MenuItemDao, val menuItemApi: 
         return menuItemsLiveData
     }
 
+    private fun getCreateMenuRq(menuItem: MenuItem): CreateMenuItemRq {
+        val createMenuItemRq = CreateMenuItemRq()
+        createMenuItemRq.itemName = menuItem.itemName
+        createMenuItemRq.description = menuItem.description
+        createMenuItemRq.price = menuItem.price
+        createMenuItemRq.category = menuItem.category
+        createMenuItemRq.restaurantId = restaurantId
+        return createMenuItemRq
+    }
+
+    private fun getUpdateMenuRq(menuItem: MenuItem): UpdateMenuItemRq {
+        val updateMenuItemRq = UpdateMenuItemRq()
+        updateMenuItemRq._id = menuItem._id
+        updateMenuItemRq.itemName = menuItem.itemName
+        updateMenuItemRq.description = menuItem.description
+        updateMenuItemRq.price = menuItem.price
+        updateMenuItemRq.category = menuItem.category
+        return updateMenuItemRq
+    }
 
 
 }
