@@ -19,6 +19,9 @@
         android:theme="@style/Theme.CustomerCallingV2"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.auth.register.RegisterOwnerActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.restaurants.add.AddRestaurantActivity"
             android:exported="false" />
         <activity
@@ -58,7 +61,7 @@
             android:name=".activities.home.HomeActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.CustomerCallingV2"></activity>
+            android:theme="@style/Theme.CustomerCallingV2" />
 
         <receiver
             android:name=".receivers.PhoneStateReceiver"

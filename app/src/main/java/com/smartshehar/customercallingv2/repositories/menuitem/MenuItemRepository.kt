@@ -44,12 +44,8 @@ class MenuItemRepository(
     }
 
 
-
-
     suspend fun updateMenuItem(menuItem: MenuItem): EventData<MenuItem> {
-        var eventData: EventData<MenuItem>
-        eventData = updateMenuItemToApi(menuItem)
-        return eventData
+        return updateMenuItemToApi(menuItem)
     }
 
     suspend fun checkAndSyncBackup() {
