@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,11 +33,21 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
         setContentView(binding.root)
         setListeners()
 
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
+
+    private fun loadData() {
         viewModel.checkPendingBackups()
         viewModel.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
-                    if(it.data !=null){
+                    if (it.data != null) {
                         setMenuItemsList(it)
                     }
                 }
@@ -47,11 +59,16 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
-
     }
 
     private fun setMenuItemsList(it: EventData<List<MenuItem>>) {
         menuItems = it.data!!
+        if(menuItems.isEmpty()){
+            findViewById<LinearLayout>(R.id.ll_emptyLayout).visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_emptyLayoutMessage).text = "No menu items added"
+            binding.rViewViewMenuItems.visibility = View.GONE
+            return
+        }
         val mAdapter = MenuItemAdapter(menuItems)
         binding.rViewViewMenuItems.apply {
             layoutManager = LinearLayoutManager(applicationContext)

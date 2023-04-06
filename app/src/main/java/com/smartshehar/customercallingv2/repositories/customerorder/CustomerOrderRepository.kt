@@ -2,7 +2,6 @@ package com.smartshehar.customercallingv2.repositories.customerorder
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.amaze.emanage.events.EventData
 import com.google.gson.reflect.TypeToken
 import com.smartshehar.customercallingv2.models.Customer
@@ -15,10 +14,8 @@ import com.smartshehar.customercallingv2.repositories.api.CustomerOrderApi
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithCustomer
 import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerWithCustomerOrder
 import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
-import com.smartshehar.customercallingv2.utils.RequestHelper
+import com.smartshehar.customercallingv2.utils.ResponseHelper
 import com.smartshehar.customercallingv2.utils.events.EventStatus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.lang.reflect.Type
 import java.util.*
 import javax.inject.Inject
@@ -194,7 +191,7 @@ class CustomerOrderRepository @Inject constructor(
                     return eventData
                 }
             }else{
-                eventData.error = RequestHelper.getErrorMessage(response)
+                eventData.error = ResponseHelper.getErrorMessage(response)
                 eventData.eventStatus = EventStatus.ERROR
             }
         } catch (e: java.lang.Exception) {

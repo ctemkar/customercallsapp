@@ -50,7 +50,7 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         viewMenuItemVM.getMenuItems().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
-                    if(it.data !=null){
+                    if (it.data != null) {
                         initializeCustomerOrderWithZeroQuantity(it.data!!)
                         setMenuItemsToCartList(it)
                     }
@@ -84,8 +84,8 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
             }
             orderItems.add(orderItem)
         }
-        lifecycleScope.launch{
-            orderItems = viewModel.getOrderedCounts(orderItems,customerId) as ArrayList<OrderItem>
+        lifecycleScope.launch {
+            orderItems = viewModel.getOrderedCounts(orderItems, customerId) as ArrayList<OrderItem>
         }
         orderItems
     }
@@ -151,6 +151,9 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
 
         orderItems[position].quantity = updatedQuantity
         orderItems.forEach {
+            if (it.quantity != 0) {
+                totalItems += 1
+            }
             totalAmount += it.quantity * it.price
         }
 

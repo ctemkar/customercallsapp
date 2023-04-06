@@ -69,7 +69,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rView_availableRestaurants"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="250dp" />
 
 
     <ProgressBar
@@ -82,8 +82,9 @@
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="Add New"
+        android:id="@+id/bt_addNewRestaurantAlert"
         android:textSize="15sp" />
 
 </LinearLayout>

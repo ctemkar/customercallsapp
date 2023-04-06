@@ -2,6 +2,7 @@ package com.smartshehar.customercallingv2.activities.home
 
 import android.Manifest.permission.*
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -15,7 +16,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +24,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amaze.emanage.events.EventData
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.smartshehar.customercallingv2.R
 import com.smartshehar.customercallingv2.activities.adapters.AvailableRestaurantAdapter
 import com.smartshehar.customercallingv2.activities.adapters.CustomerListHomeAdapter
@@ -31,8 +33,11 @@ import com.smartshehar.customercallingv2.activities.auth.AuthenticationVM
 import com.smartshehar.customercallingv2.activities.auth.LoginActivity
 import com.smartshehar.customercallingv2.activities.customer.addcustomer.AddCustomerActivity
 import com.smartshehar.customercallingv2.activities.customer.view.ViewCustomerActivity
+import com.smartshehar.customercallingv2.activities.home.permissions.PermissionModel
+import com.smartshehar.customercallingv2.activities.home.permissions.PermissionsAdapter
 import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemsActivity
 import com.smartshehar.customercallingv2.activities.order.viewallorders.AllOrdersActivity
+import com.smartshehar.customercallingv2.activities.restaurants.add.AddRestaurantActivity
 import com.smartshehar.customercallingv2.databinding.ActivityHomeBinding
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.Owner
@@ -42,7 +47,6 @@ import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.utils.states.AuthState
 import com.smartshehar.customercallingv2.utils.states.RestaurantState
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -70,7 +74,11 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         checkPermissions()
-        loadData()
+
+        setViewModelObservers()
+
+        //Set Search change listener
+        setSearchTextChangeListener()
 
         binding.fabNewCustomer.setOnClickListener {
             startActivity(Intent(this, AddCustomerActivity::class.java))
@@ -86,22 +94,51 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun loadData() {
+    private fun setViewModelObservers() {
+        //Start loading data from server and cache
+        loadOwnedRestaurantsFromServer()
+        observeCustomerList()
+        loadProfileDataFromServer()
+        observeRestaurantUpdation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadOwnedRestaurantsFromServer()
+    }
+    private fun loadOwnedRestaurantsFromServer() {
+        viewModel.getRestaurantsList().observe(this) {
+            when (it.eventStatus) {
+                EventStatus.LOADING -> TODO()
+                EventStatus.SUCCESS -> {
+                    availableRestaurants = it.data as ArrayList<Restaurant>
+                    mRestaurantAdapter = AvailableRestaurantAdapter(availableRestaurants)
+                }
+                EventStatus.ERROR -> TODO()
+                EventStatus.EMPTY -> TODO()
+                EventStatus.CACHE_DATA -> TODO()
+            }
+        }
+    }
+
+
+    private fun observeCustomerList() {
         viewModel.getCustomersLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.EMPTY -> {
-                    
+
                 }
                 EventStatus.LOADING -> {
-
+                    showFullScreenLoadingLayout("loadCustomerDataFromCacheAndServer")
                 }
                 EventStatus.SUCCESS -> {
                     hideSyncingView()
+                    hideFullScreenLoadingLayout()
                     showCustomerDataList(it)
                 }
                 EventStatus.ERROR -> {
+                    hideFullScreenLoadingLayout()
                     hideSyncingView()
-                    Log.d(TAG, "loadData: ERROR")
                 }
                 EventStatus.CACHE_DATA -> {
                     hideSyncingView()
@@ -109,7 +146,9 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
+    private fun loadProfileDataFromServer() {
         authViewModel.getProfileData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
@@ -119,8 +158,7 @@ class HomeActivity : AppCompatActivity() {
                     Log.d(TAG, "loadData: ${it.data!!.ownerName}")
                     if (it.data != null) {
                         setSelectedRestaurant(it)
-                        //Set Restaurant list Items on top
-                        setRestaurantListeners()
+                        setRestaurantChangeListeners()
                     }
                 }
                 EventStatus.ERROR -> {
@@ -144,20 +182,6 @@ class HomeActivity : AppCompatActivity() {
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
-
-
-        viewModel.getRestaurantsList().observe(this) {
-            when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
-                EventStatus.SUCCESS -> {
-                    availableRestaurants = it.data as ArrayList<Restaurant>
-                    mRestaurantAdapter = AvailableRestaurantAdapter(availableRestaurants)
-                }
-                EventStatus.ERROR -> TODO()
-                EventStatus.EMPTY -> TODO()
-                EventStatus.CACHE_DATA -> TODO()
-            }
-        }
     }
 
     private fun setSelectedRestaurant(it: EventData<Owner>) {
@@ -176,19 +200,19 @@ class HomeActivity : AppCompatActivity() {
     }
 
 
-    private fun setRestaurantListeners() {
+    private fun setRestaurantChangeListeners() {
         binding.cardSelectedRestaurant.setOnClickListener {
-            setupMenu()
+            setupSelectCurrentRestaurantPopup()
         }
     }
 
-
     lateinit var dialog: Dialog
-    private fun setupMenu() {
+    private fun setupSelectCurrentRestaurantPopup() {
         if (this::dialog.isInitialized) {
             if (dialog.isShowing)
                 dialog.dismiss()
         }
+
         dialog = Dialog(this@HomeActivity)
         dialog.setContentView(R.layout.alert_select_restaurants)
         if (selectedRestaurant != null) {
@@ -209,52 +233,74 @@ class HomeActivity : AppCompatActivity() {
                 AvailableRestaurantAdapter.OnItemClickListener {
                 override fun onClick(position: Int) {
                     updateSelectedRestaurant(position)
+                    dialog.dismiss()
                 }
             })
         } else {
             dialog.findViewById<ProgressBar>(R.id.pgBar_availableRestaurants).visibility = View.GONE
         }
 
-        // val dialogButton: Button = dialog.findViewById(com.smartshehar.customercallingv2.R.id.dialogButtonOK) as Button
-        // if button is clicked, close the custom dialog
-        // if button is clicked, close the custom dialog
-//        dialogButton.setOnClickListener(object : DialogInterface.OnClickListener() {
-//            fun onClick(v: View?) {
-//                dialog.dismiss()
-//                Toast.makeText(applicationContext, "Dismissed..!!", Toast.LENGTH_SHORT).show()
-//            }
-//        })
+        val addNewRestaurantButton: MaterialButton =
+            dialog.findViewById(R.id.bt_addNewRestaurantAlert)
+        addNewRestaurantButton.setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(applicationContext,AddRestaurantActivity::class.java))
+        }
         dialog.show()
     }
 
+
+    var lastSelectedRestaurantPosition = 0
     private fun updateSelectedRestaurant(position: Int) {
         val selectedId = availableRestaurants[position]._id
-        viewModel.updateSelectedRestaurant(selectedId).observe(this) {
+        Log.d(TAG, "updateSelectedRestaurant: ")
+        viewModel.updateCurrentSelectedRestaurant(selectedId)
+        lastSelectedRestaurantPosition = position
+    }
+
+    private fun observeRestaurantUpdation() {
+        viewModel.getSelectedRestaurantUpdateLiveData().observe(this) {
             when (it.eventStatus) {
-                EventStatus.LOADING -> TODO()
-                EventStatus.SUCCESS -> {
-                    selectedRestaurant = availableRestaurants[position]
-                    binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
-                    closeMenu()
+                EventStatus.LOADING -> {
+                    showFullScreenLoadingLayout("observeRestaurantUpdatedChange")
                 }
-                EventStatus.ERROR -> TODO()
+                EventStatus.SUCCESS -> {
+                    hideFullScreenLoadingLayout()
+                    selectedRestaurant = availableRestaurants[lastSelectedRestaurantPosition]
+                    binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
+                    viewModel.refreshCustomerListData()
+                }
+                EventStatus.ERROR -> {
+                    hideFullScreenLoadingLayout()
+                    Toast.makeText(
+                        applicationContext,
+                        "Unable to update current selection",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 EventStatus.EMPTY -> TODO()
                 EventStatus.CACHE_DATA -> TODO()
             }
         }
     }
 
-    private fun closeMenu() {
-        if (this::dialog.isInitialized) {
-            if (dialog.isShowing)
-                dialog.dismiss()
-        }
-        loadData()
+    private fun hideFullScreenLoadingLayout() {
+        Log.d(TAG, "hideFullScreenLoadingLayout: ")
+        binding.llMainContentHome.visibility = View.VISIBLE
+        findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.GONE
     }
+
+    private fun showFullScreenLoadingLayout(caller: String) {
+        Log.d(TAG, "showFullScreenLoadingLayout: $caller ")
+        binding.llMainContentHome.visibility = View.GONE
+        findViewById<LinearLayout>(R.id.lottie_loading_utensils).visibility = View.VISIBLE
+
+    }
+
 
     lateinit var mAdapter: CustomerListHomeAdapter
     private fun showCustomerDataList(it: EventData<List<Customer>>?) {
-        if (it != null) {
+        if (it!!.data != null) {
             customersList = (it.data as ArrayList<Customer>?)!!
             mAdapter = CustomerListHomeAdapter(customersList)
 
@@ -277,8 +323,6 @@ class HomeActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             })
-
-            setSearchTextChangeListener()
         }
     }
 
@@ -318,68 +362,74 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, READ_PHONE_STATE) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    READ_PHONE_STATE
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_PHONE_STATE), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_PHONE_STATE), 1
-                )
-            }
-        }
+
         if (!Settings.canDrawOverlays(this)) {
             requestPermission()
         }
 
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, READ_CALL_LOG) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    READ_CALL_LOG
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_CALL_LOG), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(READ_CALL_LOG), 1
-                )
-            }
+        val isPhoneStatePermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, READ_PHONE_STATE) ==
+                    PackageManager.PERMISSION_GRANTED
+        val isCallLogPermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, READ_CALL_LOG) ==
+                    PackageManager.PERMISSION_GRANTED
+        val isMakeCallPermission =
+            ContextCompat.checkSelfPermission(this@HomeActivity, CALL_PHONE) ==
+                    PackageManager.PERMISSION_GRANTED
+
+        if (isCallLogPermission && isMakeCallPermission && isPhoneStatePermission) {
+            //Hide permissions view
+            findViewById<MaterialCardView>(R.id.card_permissions).visibility = View.GONE
+            return
         }
 
-        if (ContextCompat.checkSelfPermission(this@HomeActivity, CALL_PHONE) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this@HomeActivity,
-                    CALL_PHONE
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(CALL_PHONE), 1
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@HomeActivity,
-                    arrayOf(CALL_PHONE), 1
-                )
-            }
+        val permissionsList = kotlin.collections.ArrayList<PermissionModel>()
+        permissionsList.add(
+            PermissionModel(
+                1, "Interrupt Incoming Call", isPhoneStatePermission,
+                READ_PHONE_STATE
+            )
+        )
+
+        permissionsList.add(
+            PermissionModel(
+                2, "Retrieve Missed Calls", isCallLogPermission,
+                READ_CALL_LOG
+            )
+        )
+
+        permissionsList.add(
+            PermissionModel(
+                3, "Make Phone Calls", isMakeCallPermission,
+                CALL_PHONE
+            )
+        )
+
+        val rViewPermissions = findViewById<RecyclerView>(R.id.rView_permissions)
+        val mAdapter = PermissionsAdapter(permissionsList)
+        rViewPermissions.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = mAdapter
         }
+        mAdapter.setOnItemClickListener(object : PermissionsAdapter.OnItemClickListener {
+            override fun onItemClick(selectedPermission: PermissionModel) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this@HomeActivity,
+                        selectedPermission.permissionString
+                    )
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this@HomeActivity,
+                        arrayOf(selectedPermission.permissionString), 1
+                    )
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this@HomeActivity,
+                        arrayOf(selectedPermission.permissionString), 1
+                    )
+                }
+            }
+        })
     }
 
     private fun showDialog(titleText: String, messageText: String) {
@@ -402,8 +452,8 @@ class HomeActivity : AppCompatActivity() {
             startActivityForResult(intent, 10)
         } catch (e: Exception) {
             showDialog(
-                "ASD",
-                "ASd"
+                "Error",
+                "Something happened! Try again"
             )
         }
     }
@@ -416,22 +466,7 @@ class HomeActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             1 -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    // Permission is granted. Continue the action or workflow
-                    // in your app.
-                } else {
-                    // Explain to the user that the feature is unavailable because
-                    // the feature requires a permission that the user has denied.
-                    // At the same time, respect the user's decision. Don't link to
-                    // system settings in an effort to convince the user to change
-                    // their decision.
-                    Toast.makeText(this, "Permission Required for handle calls", Toast.LENGTH_SHORT)
-                        .show()
-                    checkPermissions()
-                }
+                checkPermissions()
                 return
             }
 

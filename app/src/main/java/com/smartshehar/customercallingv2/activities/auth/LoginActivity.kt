@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import com.smartshehar.customercallingv2.activities.auth.register.RegisterOwnerActivity
 import com.smartshehar.customercallingv2.activities.home.HomeActivity
 import com.smartshehar.customercallingv2.databinding.ActivityLoginBinding
 import com.smartshehar.customercallingv2.models.dtos.LoginRq
@@ -18,7 +19,7 @@ import javax.inject.Inject
 class LoginActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var authState : AuthState
+    lateinit var authState: AuthState
 
     lateinit var binding: ActivityLoginBinding
     val viewModel: AuthenticationVM by viewModels()
@@ -29,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
         binding.tvErrorLogin.visibility = View.GONE
         binding.pgBarLogin.visibility = View.GONE
 
-        if(authState.isUserLoggedIn()){
+        if (authState.isUserLoggedIn()) {
             startActivity(Intent(applicationContext, HomeActivity::class.java))
             finish()
         }
@@ -60,6 +61,10 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        binding.tvRegisterNow.setOnClickListener {
+            startActivity(Intent(applicationContext, RegisterOwnerActivity::class.java))
         }
     }
 

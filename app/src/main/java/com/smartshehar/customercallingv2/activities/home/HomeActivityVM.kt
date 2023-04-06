@@ -4,20 +4,18 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
 import com.amaze.emanage.events.SingleLiveEvent
-import com.smartshehar.customercallingv2.utils.events.EventStatus
 import com.smartshehar.customercallingv2.models.Customer
 import com.smartshehar.customercallingv2.models.Restaurant
 import com.smartshehar.customercallingv2.models.dtos.UpdateRs
 import com.smartshehar.customercallingv2.models.dtos.UpdateSelectedRestaurantRq
 import com.smartshehar.customercallingv2.repositories.api.RestaurantApi
-import com.smartshehar.customercallingv2.repositories.customer.CustomerDao
 import com.smartshehar.customercallingv2.repositories.customer.CustomerRepository
 import com.smartshehar.customercallingv2.utils.Constants.Companion.NETWORK_ERROR
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.handleCoroutineException
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.Exception
 
 @HiltViewModel
 class HomeActivityVM @Inject constructor(
@@ -29,7 +27,7 @@ class HomeActivityVM @Inject constructor(
     private val customersLiveData = MutableLiveData<EventData<List<Customer>>>()
 
 
-    private val customerListObserver = Observer<List<Customer>> { it ->
+    private val customerListObserver = Observer<List<Customer>> {
         val data = EventData<List<Customer>>()
         data.eventStatus = EventStatus.CACHE_DATA
         data.data = it
@@ -42,18 +40,34 @@ class HomeActivityVM @Inject constructor(
             if (!customerRepository.getCustomers().hasObservers()) {
                 customerRepository.getCustomers().observeForever(customerListObserver)
             }
-            val eventData = EventData<List<Customer>>()
-            try {
-                val fetchStatus = customerRepository.fetchApiData()
-                customerRepository.checkAndSyncBackup()
-            } catch (e: java.lang.Exception) {
-                eventData.eventStatus = EventStatus.ERROR
-                eventData.error = NETWORK_ERROR
-                customersLiveData.postValue(eventData)
-            }
+            syncCustomerListDataFromServer()
         }
         return customersLiveData
     }
+
+    private suspend fun syncCustomerListDataFromServer() {
+        val eventData = EventData<List<Customer>>()
+        try {
+            val fetchStatus = customerRepository.fetchApiData()
+            customerRepository.checkAndSyncBackup()
+            eventData.eventStatus = fetchStatus
+            customersLiveData.postValue(eventData)
+        } catch (e: Exception) {
+            eventData.eventStatus = EventStatus.ERROR
+            eventData.error = NETWORK_ERROR
+            customersLiveData.postValue(eventData)
+        }
+    }
+
+    fun refreshCustomerListData(){
+        viewModelScope.launch {
+            val eventData = EventData<List<Customer>>()
+            eventData.eventStatus = EventStatus.LOADING
+            customersLiveData.postValue(eventData)
+            syncCustomerListDataFromServer()
+        }
+    }
+
 
 
     private val restaurantsLiveData = SingleLiveEvent<EventData<List<Restaurant>>>()
@@ -79,20 +93,29 @@ class HomeActivityVM @Inject constructor(
 
 
     private val updateSelectedStatusLiveData = MutableLiveData<EventData<UpdateRs>>()
-    fun updateSelectedRestaurant(selectedId: String): LiveData<EventData<UpdateRs>> {
+    fun getSelectedRestaurantUpdateLiveData(): LiveData<EventData<UpdateRs>> {
+        return updateSelectedStatusLiveData
+    }
+
+    fun updateCurrentSelectedRestaurant(selectedId: String){
+        val eventData = EventData<UpdateRs>()
+        eventData.eventStatus = EventStatus.LOADING
+        updateSelectedStatusLiveData.postValue(eventData)
         viewModelScope.launch {
-            val updateRq = UpdateSelectedRestaurantRq()
-            updateRq.restaurantId = selectedId
-            val result = restaurantApi.updateSelectedRestaurant(updateRq)
-            val eventData = EventData<UpdateRs>()
-            if (result.isSuccessful) {
-                eventData.eventStatus = EventStatus.SUCCESS
-            } else {
+            try {
+                val updateRq = UpdateSelectedRestaurantRq()
+                updateRq.restaurantId = selectedId
+                val result = restaurantApi.updateSelectedRestaurant(updateRq)
+                if (result.isSuccessful) {
+                    eventData.eventStatus = EventStatus.SUCCESS
+                } else {
+                    eventData.eventStatus = EventStatus.ERROR
+                }
+            }catch (e: Exception){
                 eventData.eventStatus = EventStatus.ERROR
             }
             updateSelectedStatusLiveData.postValue(eventData)
         }
-        return updateSelectedStatusLiveData
     }
 
     //Must remove observer manually as this one is not lifecycle aware
