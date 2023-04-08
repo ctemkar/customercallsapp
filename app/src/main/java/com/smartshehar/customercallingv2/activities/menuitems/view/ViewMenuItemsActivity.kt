@@ -34,31 +34,35 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
         setListeners()
 
 
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadData()
-    }
-
-    private fun loadData() {
-        viewModel.checkPendingBackups()
-        viewModel.getMenuItems().observe(this) {
+        viewModel.menuItemsLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
                     if (it.data != null) {
+                        Log.d(TAG, "onCreate: ${it.data!!.size}")
                         setMenuItemsList(it)
                     }
                 }
                 EventStatus.SUCCESS -> {
                     setMenuItemsList(it)
+                    Log.d(TAG, "onCreate: ${it.data!!.size}")
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
-                EventStatus.CACHE_DATA -> TODO()
+                EventStatus.CACHE_DATA -> {
+                    if (it.data != null) {
+                        Log.d(TAG, "onCreate: ${it.data!!.size}")
+                        setMenuItemsList(it)
+                    }
+                }
             }
         }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkPendingBackups()
+        viewModel.refreshMenuItems()
     }
 
     private fun setMenuItemsList(it: EventData<List<MenuItem>>) {
@@ -68,6 +72,9 @@ class ViewMenuItemsActivity : AppCompatActivity(), MenuItemAdapter.OnItemClickLi
             findViewById<TextView>(R.id.tv_emptyLayoutMessage).text = "No menu items added"
             binding.rViewViewMenuItems.visibility = View.GONE
             return
+        }else{
+            findViewById<LinearLayout>(R.id.ll_emptyLayout).visibility = View.GONE
+            binding.rViewViewMenuItems.visibility = View.VISIBLE
         }
         val mAdapter = MenuItemAdapter(menuItems)
         binding.rViewViewMenuItems.apply {

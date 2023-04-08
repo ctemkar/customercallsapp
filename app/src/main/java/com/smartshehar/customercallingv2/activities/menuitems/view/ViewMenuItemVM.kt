@@ -3,9 +3,9 @@ package com.smartshehar.customercallingv2.activities.menuitems.view
 import android.app.Application
 import androidx.lifecycle.*
 import com.amaze.emanage.events.EventData
-import com.amaze.emanage.events.SingleLiveEvent
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.repositories.menuitem.MenuItemRepository
+import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,34 +18,32 @@ class ViewMenuItemVM @Inject constructor(
 
 
     private val menuItemsLiveData = MutableLiveData<EventData<List<MenuItem>>>()
-    private val menuItemsObserver = Observer<EventData<List<MenuItem>>> {
-        val eventData = EventData<List<MenuItem>>()
-        eventData.data = eventData.data
-        eventData.eventStatus = eventData.eventStatus
-        menuItemsLiveData.value = eventData
+
+    fun menuItemsLiveData(): LiveData<EventData<List<MenuItem>>> {
+        return menuItemsLiveData
     }
 
-    fun getMenuItems(): LiveData<EventData<List<MenuItem>>> {
+    fun refreshMenuItems (){
+        notifyDataChange()
         viewModelScope.launch {
             //Fetch local data first and sent to view
             //Once local data is loaded, then proceed to fetch api data
             menuItemRepository.getMenuItemsFromApi()
+            notifyDataChange()
         }
+    }
 
-        return menuItemRepository.getAllMenuItems()
+    private fun notifyDataChange() {
+        val cachedItems = menuItemRepository.getAllMenuItems()
+        val eventData = EventData<List<MenuItem>>()
+        eventData.eventStatus = EventStatus.CACHE_DATA
+        eventData.data = cachedItems
+        menuItemsLiveData.postValue(eventData)
     }
 
     fun checkPendingBackups() {
         viewModelScope.launch {
             menuItemRepository.checkAndSyncBackup()
-        }
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        if (menuItemRepository.getAllMenuItems().hasActiveObservers()) {
-            menuItemRepository.getAllMenuItems().removeObserver(menuItemsObserver)
         }
     }
 

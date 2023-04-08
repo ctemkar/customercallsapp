@@ -1,5 +1,6 @@
 package com.smartshehar.customercallingv2.di
 
+import android.util.Log
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.repositories.api.CustomerApi
 import com.smartshehar.customercallingv2.repositories.api.MenuItemApi
@@ -17,6 +18,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object RepoModule {
 
+    private val TAG = "RepoModule"
+
     @Provides
     fun getCustomerRepo(customerDao: CustomerDao, customerApi: CustomerApi): CustomerRepository {
         return CustomerRepository(customerDao, customerApi)
@@ -28,6 +31,11 @@ object RepoModule {
         menuItemApi: MenuItemApi,
         restaurantState: RestaurantState
     ): MenuItemRepository {
+
+        Log.d(
+            TAG,
+            "getMenuItemRepo: Provided menuitemrepo ${restaurantState.getCurrentRestaurantId()}"
+        )
         return MenuItemRepository(
             menuItemDao,
             menuItemApi,

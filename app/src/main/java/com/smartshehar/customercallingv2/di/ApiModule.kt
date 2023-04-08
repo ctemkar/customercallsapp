@@ -48,6 +48,7 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideRestaurantState(application: Application): RestaurantState {
+        Log.d(TAG, "provideRestaurantState: Provided Restaurant State")
         return RestaurantState(application)
     }
 

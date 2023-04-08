@@ -64,7 +64,11 @@ class CustomerOrderRepository @Inject constructor(
         customerOrder: CustomerOrder,
         filteredOrderItems: List<OrderItem>
     ): Long {
-        val totalAmount = 0.0
+        var totalAmount = 0.0
+        filteredOrderItems.forEach {
+            //Map the parent order to child items ie. Cart items
+            totalAmount += it.quantity * it.price
+        }
         customerOrder.orderTotalAmount = totalAmount
         val savedParentOrderId = customerOrderDao.insert(customerOrder)
 

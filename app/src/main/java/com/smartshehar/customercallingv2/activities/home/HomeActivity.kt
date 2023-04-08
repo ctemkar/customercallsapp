@@ -253,22 +253,24 @@ class HomeActivity : AppCompatActivity() {
     var lastSelectedRestaurantPosition = 0
     private fun updateSelectedRestaurant(position: Int) {
         val selectedId = availableRestaurants[position]._id
-        Log.d(TAG, "updateSelectedRestaurant: ")
         viewModel.updateCurrentSelectedRestaurant(selectedId)
         lastSelectedRestaurantPosition = position
     }
 
     private fun observeRestaurantUpdation() {
         viewModel.getSelectedRestaurantUpdateLiveData().observe(this) {
+
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
-                    showFullScreenLoadingLayout("observeRestaurantUpdatedChange")
+
                 }
                 EventStatus.SUCCESS -> {
                     hideFullScreenLoadingLayout()
                     selectedRestaurant = availableRestaurants[lastSelectedRestaurantPosition]
                     binding.tvSelectedRestaurant.text = selectedRestaurant!!.restaurantName
                     viewModel.refreshCustomerListData()
+                    restaurantState.saveCurrentRestaurantId(selectedRestaurant!!._id)
+
                 }
                 EventStatus.ERROR -> {
                     hideFullScreenLoadingLayout()

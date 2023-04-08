@@ -19,7 +19,6 @@ class Customer : Serializable {
 
     var _id: String = ""
 
-    @ColumnInfo(name = "first_name")
     var firstName: String = ""
     var contactNumber = ""
     var houseNo = ""

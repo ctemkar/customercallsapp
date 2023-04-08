@@ -24,7 +24,7 @@ interface MenuItemDao {
     fun update(menuItem: MenuItem)
 
     @Query("select * from menuitem where restaurantId=:restaurantId")
-    fun findAllMenuItems(restaurantId: String) : LiveData<List<MenuItem>>
+    fun findAllMenuItems(restaurantId: String)  : List<MenuItem>
 
     @Query("select * from menuitem where isBackedUp=0 and restaurantId=:restaurantId")
     fun findAllUnSyncedMenuItems(restaurantId: String) : List<MenuItem>

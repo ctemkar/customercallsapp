@@ -1,7 +1,6 @@
 package com.smartshehar.customercallingv2.repositories.menuitem
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.amaze.emanage.events.EventData
@@ -142,9 +141,8 @@ class MenuItemRepository(
     }
 
 
-    fun getAllMenuItems(): LiveData<EventData<List<MenuItem>>> {
-        menuItemDao.findAllMenuItems(restaurantId).observeForever(menuItemsLocalObserver)
-        return menuItemsLiveData
+    fun getAllMenuItems(): List<MenuItem> {
+        return menuItemDao.findAllMenuItems(restaurantId)
     }
 
     private fun getCreateMenuRq(menuItem: MenuItem): CreateMenuItemRq {

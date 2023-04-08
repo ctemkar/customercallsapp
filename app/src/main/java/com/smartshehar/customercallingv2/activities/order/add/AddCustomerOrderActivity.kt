@@ -3,7 +3,6 @@ package com.smartshehar.customercallingv2.activities.order.add
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -17,12 +16,10 @@ import com.smartshehar.customercallingv2.activities.menuitems.view.ViewMenuItemV
 import com.smartshehar.customercallingv2.databinding.ActivityAddCustomerOrderBinding
 import com.smartshehar.customercallingv2.models.MenuItem
 import com.smartshehar.customercallingv2.models.OrderItem
-import com.smartshehar.customercallingv2.repositories.sqlite.reations.CustomerOrderWithOrderItem
 import com.smartshehar.customercallingv2.utils.Constants
 import com.smartshehar.customercallingv2.utils.events.EventStatus
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 @AndroidEntryPoint
 class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuantityChangeListener {
@@ -47,7 +44,7 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
         }
 
         customerId = intent.getLongExtra(Constants.INTENT_DATA_CUSTOMER_ID, 0)
-        viewMenuItemVM.getMenuItems().observe(this) {
+        viewMenuItemVM.menuItemsLiveData().observe(this) {
             when (it.eventStatus) {
                 EventStatus.LOADING -> {
                     if (it.data != null) {
@@ -61,9 +58,13 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
                 }
                 EventStatus.ERROR -> TODO()
                 EventStatus.EMPTY -> TODO()
-                EventStatus.CACHE_DATA -> TODO()
+                EventStatus.CACHE_DATA -> {
+                    initializeCustomerOrderWithZeroQuantity(it.data!!)
+                    setMenuItemsToCartList(it)
+                }
             }
         }
+        viewMenuItemVM.refreshMenuItems()
 
         binding.btPlaceOrder.setOnClickListener {
             placeCustomerOrder()
@@ -95,12 +96,6 @@ class AddCustomerOrderActivity : AppCompatActivity(), CartItemAdapter.OnItemQuan
             Toast.makeText(this, "No Items to order", Toast.LENGTH_SHORT).show()
             return
         }
-//        orderItems.forEach {
-//            if (it.quantity == 0) {
-//                orderItems.remove(it)
-//            }
-//            Log.d(TAG, "placeCustomerOrder: ${it.quantity} ${it.itemName}")
-//        }
 
         viewModel.addCustomerOrder(customerId, orderItems).observe(this) {
             when (it.eventStatus) {
